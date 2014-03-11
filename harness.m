@@ -2,7 +2,7 @@
 % For more information search for "README:" in harness.cpp.
 
 % Randmomize the input data
-number_of_elements=2+ceil(30*rand);
+number_of_elements=4+ceil(30*rand);
 data_to_harness=randn(number_of_elements,1);
 
 % Write to file (note the type of the data used)

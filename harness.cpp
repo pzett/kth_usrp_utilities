@@ -16,7 +16,7 @@
 //
 
 
-#include <fstream> 
+#include <fstream> // PZ
 #include <uhd/utils/thread_priority.hpp>
 #include <uhd/utils/safe_main.hpp>
 #include <uhd/usrp/multi_usrp.hpp>
@@ -26,9 +26,9 @@
 #include <iostream>
 #include <complex>
 #include <uhd/types/clock_config.hpp>
-
-
-
+//#include <gruel/realtime.h>
+extern double dummy_float;
+ 
 // The square_elements_of_array is defined in another file (normally in *.hpp file):
 extern void square_elements_of_array(float data_to_harness[],int no_elements) ;
 
@@ -36,6 +36,13 @@ namespace po = boost::program_options;
 
 int UHD_SAFE_MAIN(int argc, char *argv[]){
     
+  #if 0
+    if (!(uhd::set_thread_priority_safe(1,true))) {
+      std::cout << "Problem setting thread priority" << std::endl;
+      return 1;
+    };
+   #endif
+
     std::cout << "This program is an example of how to test C++ implementations using matlab as a reference. \n";
     std::cout << "For more information open the source code file and search for the section of comment lines \n";
     std::cout << "begining with README \n \n";
@@ -54,7 +61,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
        The harness works as follows.  The matlab script harness.m randomizes a vector of floats.
        It writes these floats in the data file data_to_harness.dat. It then calls the program
        harness with the number of elements as a command line parameter. This is done
-       using the matlab function "system" which executes commands in a bash shell (i.e. like
+       using the matlab function "system" which exekvates commands in a bash shell (i.e. like
        a terminal window). The harness loads the floats from the file, calls square_elements_of_array,
        writes the results to the file data_from_harness.dat and exits. The control is now
        returned to the matlab script harness.m which loads the values from file into the
@@ -75,7 +82,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
        Note that default values can also be set (study code below). 
        In the matlab script harness.m we call the harness program by the following code:
 
-       cmd_str=[' ./harness '];
+       cmd_str=['sudo ./harness '];
        cmd_str=[cmd_str,' --no_elements=',num2str(length(data_to_harness))];
        system(cmd_str);
 
@@ -83,11 +90,12 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
        This first two lines creates a string with the exact same content as the command line
        above. The third line opens a bash shell to execute it and waits for it to complete.
 
-       To compile the harness write "make harness". If you look in the attached Makefile
-       you can see how it is compliled. Different parameters are used than for the other
-       C++ files. This is done in order to enable debugging using gcc and its more user friendly
-       version ddd.
-          
+       Why do we use "sudo" on everything? Answer: because we run everything with high priority
+       which gives the highest speed. 
+
+       To compile the harness write "make harness". When you implement important functions
+       in your project, make one harness for each e.g. harness_decoder,        
+       
     */
 
     //variables to be set by from command line 
@@ -137,7 +145,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
 
     std::cout << "number_of_elements=" << number_of_elements << std::endl;
 
-    // Read data to file
+    // Save data to file
     std::ofstream ofs( "data_from_harness.dat" , std::ifstream::out );
     ofs.write((char * )data_to_harness,number_of_elements*sizeof(float));
     ofs.close();
