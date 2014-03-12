@@ -18,6 +18,7 @@
 #include <uhd/utils/thread_priority.hpp>
 #include <uhd/utils/safe_main.hpp>
 #include <uhd/usrp/multi_usrp.hpp>
+#include <uhd/types/dict.hpp>
 #include <boost/program_options.hpp>
 #include <boost/format.hpp>
 #include <iostream>
@@ -42,7 +43,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     double tx_rate, freq, LOoffset;
     float gain;
     bool forever, use_8bits;
-    bool use_external_10MHz; 
+    bool use_external_10MHz, trigger_with_pps; 
     std::string filename;
     uhd::tx_streamer::sptr tx_stream;
     uhd::device_addr_t dev_addr;
@@ -62,8 +63,8 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
         ("forever",po::value<bool>(&forever)->default_value(false), "run indefinetly")
         ("10MHz",po::value<bool>(&use_external_10MHz)->default_value(false), 
 	     "external 10MHz on 'REF CLOCK' connector (true=1=yes)")
-      //("PPS",po::value<bool>(&trigger_with_pps)->default_value(false), 
-      //      "trigger reception with 'PPS IN' connector (true=1=yes)")
+      ("PPS",po::value<bool>(&trigger_with_pps)->default_value(false), 
+            "trigger reception with 'PPS IN' connector (true=1=yes)")
         ("filename",po::value<std::string>(&filename)->default_value("data_to_usrp.dat"), "input filename")
         ("gain",po::value<float>(&gain)->default_value(0), "gain of transmitter")
         ("8bits",po::value<bool>(&use_8bits)->default_value(false), "Use eight bits/sample to increase bandwidth")
@@ -135,9 +136,28 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     uhd::tune_request_t trq(freq,LOoffset); //std::min(tx_rate,10e6));
     tr=dev->set_tx_freq(trq,0);
     
-    if (freq>2399e6) { // Ugly solution :-(
-    dev->set_tx_antenna("J2");
-    dev->set_rx_antenna("J1");
+    bool is_xcvr2450=false;
+    uhd::dict<std::string, std::string> tx_info;    
+    tx_info=dev->get_usrp_tx_info(0);
+
+    if (tx_info.has_key("tx_subdev_name")) {
+      std::string str=tx_info.get("tx_subdev_name");
+      uint temp=str.find("XCVR2450");
+      if (temp<str.length()) {
+	is_xcvr2450=true;
+      };
+    };
+
+    if (is_xcvr2450) {
+      dev->set_tx_antenna("J2");
+      dev->set_rx_antenna("J1");
+      
+      //uhd::meta_range_t range=dev->get_tx_bandwidth_range();
+
+      if (LOoffset>=9e6) {
+	dev->set_tx_bandwidth(3.96e+07);
+      };
+      
     };
 
     dev->set_tx_gain(gain);
@@ -152,6 +172,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
       stream_args.otw_format="sc16";
 
     tx_stream=dev->get_tx_stream(stream_args);
+
 
 
     //set properties on the device
