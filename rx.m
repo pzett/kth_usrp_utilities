@@ -1,5 +1,5 @@
 
-function X=rx(Nsamples,RF_freq,ref_clk,pps_trigger,gain,rx_rate,LOoffset,scaling_8bits)
+function X=rx(Nsamples,RF_freq,ref_clk,gain,rx_rate,LOoffset,scaling_8bits)
 %
 %  function X=rx(Nsamples,RF_freq,ref_clk,pps_trigger,gain,rx_rate,LOoffset,scaling_8bits)
 % 
@@ -8,14 +8,16 @@ function X=rx(Nsamples,RF_freq,ref_clk,pps_trigger,gain,rx_rate,LOoffset,scaling
 %       RF_freq: Center frequency.
 %       ref_clk: If =1 then the receiver is locked to the external 10MHz REFCLOCK. 
 %               Set it to zero if you don't know.
-%   pps_trigger: If=1 the time is locked to PPS input.
-%                Set it to zero if you don't know.
 %          gain: Receiver gain of analog section.
 %       rx_rate: Sample-rate. Default 25MHz.
 %       LOoffset: Offset between RF LO and actually used frequency.
 % scaling_8_bits: If ==0 then 16bits is used. If <>0 then 8 bits are used. 
 %                 The parameter scaling_bits should then be set to the maximum 
 %                 amplitude expected.
+
+
+
+
 
 filename='d.dat';
 
@@ -36,9 +38,9 @@ cmd_str=[cmd_str,' --freq=',num2str(RF_freq),' --rxrate=',num2str(rx_rate)];
 cmd_str=[cmd_str,' --gain=',num2str(gain)];
 cmd_str=[cmd_str,' --LOoffset=',num2str(LOoffset)];
 
-if (pps_trigger)
-    cmd_str=[cmd_str,' --PPS=true '];
-end;
+%if (pps_trigger)
+%    cmd_str=[cmd_str,' --PPS=true '];
+%end;
 if (scaling_8bits>0)
   cmd_str=[cmd_str,' --8bits_scaling=',num2str(scaling_8bits)];
 end;

@@ -44,7 +44,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     //double seconds_in_future=0.01;
     size_t total_num_samps;
     double rx_rate, freq, LOoffset;
-    bool use_external_10MHz,trigger_with_pps;
+    bool use_external_10MHz;
     double scaling_8bits;
     std::string filename;
     float gain;
@@ -64,7 +64,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
         ("freq", po::value<double>(&freq)->default_value(0), "rf center frequency in Hz")
         ("LOoffset", po::value<double>(&LOoffset)->default_value(0), "Offset between main LO and center frequency")
         ("10MHz",po::value<bool>(&use_external_10MHz)->default_value(false), "external 10MHz on 'REF CLOCK' connector (true=1=yes)")
-        ("PPS",po::value<bool>(&trigger_with_pps)->default_value(false), "trigger reception with 'PPS IN' connector (true=1=yes)")
+      //  ("PPS",po::value<bool>(&trigger_with_pps)->default_value(false), "trigger reception with 'PPS IN' connector (true=1=yes)")
         ("filename",po::value<std::string>(&filename)->default_value("data_from_usrp.dat"), "output filename") 
         ("gain",po::value<float>(&gain)->default_value(0), "set the receiver gain") 
         ("8bits_scaling",po::value<double>(&scaling_8bits)->default_value(0.0), 
@@ -93,10 +93,11 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
 
     uhd::clock_config_t my_clock_config; 
 
-    
+    #if 0
     if (trigger_with_pps) {
       my_clock_config.pps_source=uhd::clock_config_t::PPS_SMA; 
     };
+    #endif
 
     if (use_external_10MHz) { 
       my_clock_config.ref_source=uhd::clock_config_t::REF_SMA; 
@@ -111,9 +112,32 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     //create a usrp device
     std::cout << std::endl;
     uhd::device::sptr udev = dev->get_device();
-    
-
     dev->set_rx_rate(rx_rate);
+
+    bool is_xcvr2450=false;
+    uhd::dict<std::string, std::string> rx_info;    
+    rx_info=dev->get_usrp_rx_info(0);
+
+    if (rx_info.has_key("rx_subdev_name")) {
+      std::string str=rx_info.get("rx_subdev_name");
+      uint temp=str.find("XCVR2450");
+      if (temp<str.length()) {
+	is_xcvr2450=true;
+      };
+    };
+
+    if (is_xcvr2450) {
+      dev->set_tx_antenna("J2");
+      dev->set_rx_antenna("J1");      
+      //uhd::meta_range_t range=dev->get_tx_bandwidth_range();
+
+      if (LOoffset>=9e6) {
+	dev->set_rx_bandwidth(3.96e+07);
+      };      
+    };
+
+
+
     std::cout << "rx_rate=" << rx_rate << std::endl;
     std::cout << "freq=" << freq << std::endl;
     std::cout << "gain=" << gain << std::endl;
@@ -160,12 +184,13 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
 
 
 
-    if (trigger_with_pps) {
+    /*if (trigger_with_pps) {
       dev->set_time_next_pps(uhd::time_spec_t(0.0));
       usleep(1e6); 
-    } else {
+      } */
+    //else {
       dev->set_time_now(uhd::time_spec_t(0.0));
-    };
+      //};
     std::cout << boost::format("Setting device timestamp to 0...") << std::endl;
 
     //setup streaming
@@ -205,7 +230,8 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
        /* Process the just received buffer */
        int i1=2*num_rx_samps;
        int i2=0;
-       while ((i1<(int) (2*total_num_samps)) && (i2<2*buffer_size)) {	  
+       while ((i1<(int) (2*total_num_samps)) && (i2<2*((int) buffer_size))) 
+       {	  
 	  storage_short[i1]=buff_short[i2];
 	  i1++; i2++;
        };
