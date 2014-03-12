@@ -154,8 +154,9 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
       
       //uhd::meta_range_t range=dev->get_tx_bandwidth_range();
 
-      if (LOoffset>=9e6) {
-	dev->set_tx_bandwidth(3.96e+07);
+      if (LOoffset>=7e6) {
+	dev->set_tx_bandwidth(16e6);
+	//dev->set_tx_bandwidth(3.96e+07);
       };
       
     };
