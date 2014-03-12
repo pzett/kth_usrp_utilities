@@ -52,4 +52,5 @@ temp=fread(fid,inf,'int16');
 X=[temp(1:2:end)'-j*temp(2:2:end)'];
 fclose(fid);
 
+% Remove the file which the samples were written on
 system(['rm -f ',filename]);
