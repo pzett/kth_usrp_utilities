@@ -123,6 +123,12 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     //dev->set_rx_bandwidth(36e6);
 
     tr=dev->set_rx_freq(trq);
+
+    if (freq>2399e6) { // Ugly solution :-(
+    dev->set_tx_antenna("J2");
+    dev->set_rx_antenna("J1");
+    };
+
     dev->set_rx_gain(gain);
 
     std::cout << "tr=" << tr.actual_rf_freq << std::endl;
