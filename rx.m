@@ -1,7 +1,7 @@
 
 function X=rx(Nsamples,RF_freq,ref_clk,pps_trigger,gain,rx_rate,LOoffset,scaling_8bits)
 %
-% function X=rx(Nsamples,RF_freq,ref_clk)
+%  function X=rx(Nsamples,RF_freq,ref_clk,pps_trigger,gain,rx_rate,LOoffset,scaling_8bits)
 % 
 %             X: Received complex samples.
 %      Nsamples: Number of samples to receive
