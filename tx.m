@@ -2,7 +2,7 @@ function tx( Nsamples,RF_freq, X, ref_clk , gain, tx_rate, LOoffset, low_res)
 
 %
 % 
-% function tx( Nsamples,RF_freq, X, ref_clk, gain )
+% function tx( Nsamples,RF_freq, X, ref_clk, gain, tx_rate, LOoffset, low_res)
 %
 % General description:
 % Zero-pads the signal X to length Nsamples and then loops
