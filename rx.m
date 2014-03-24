@@ -11,7 +11,7 @@ function X=rx(Nsamples,RF_freq,ref_clk,gain,rx_rate,LOoffset,scaling_8bits)
 %          gain: Receiver gain of analog section.
 %       rx_rate: Sample-rate. Default 25MHz.
 %       LOoffset: Offset between RF LO and actually used frequency.
-% scaling_8_bits: If ==0 then 16bits is used. If <>0 then 8 bits are used. Set to max amplitude.
+% scaling_8_bits: If ==0 then 16bits is used. If <>0 then 8 bits are used. Sets to max amplitude.
 %                 The parameter scaling_bits should then be set to the maximum 
 %                 amplitude expected.
 
