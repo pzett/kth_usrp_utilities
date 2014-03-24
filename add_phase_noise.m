@@ -2,7 +2,7 @@ function Sout = add_phase_noise( Sin, Fs, phase_noise_freq, phase_noise_power, V
 %
 % function Sout = add_phase_noise( Sin, Fs, phase_noise_freq, phase_noise_power, VALIDATION_ON )
 %
-% Oscillator Phase Noise Model
+% Oscillator Phase Noise Model. Multiplies signal with phase-noise.
 % 
 %  INPUT:
 %     Sin - input COMPLEX signal
