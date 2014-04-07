@@ -41,6 +41,7 @@ class board_60GHz_base {
   void write_row(uint16_t row_num, uint32_t value);
   uint16_t read_row(uint16_t row_num);
 
+  // 7,6,5,4,3
 
   private:
 
@@ -148,11 +149,11 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
       dev->set_clock_source("internal");
     };
 
+
     uhd::usrp::dboard_iface::sptr db_iface;
     db_iface=dev->get_tx_dboard_iface(0);
     board_60GHz_base my_60GHz_board(db_iface,uhd::usrp::dboard_iface::UNIT_TX,
 				  7,6,5,4,3);
-
 
     my_60GHz_board.write_row(0,0); // Power everything on
     my_60GHz_board.write_row(1,0); // Highest Q and everything on
@@ -326,14 +327,15 @@ board_60GHz_base::board_60GHz_base(uhd::usrp::dboard_iface::sptr db_iface,
   m_data_out_hmc=data_out_hmc;
   m_reset_hmc=reset_hmc;
 
-  mask_write=(1<<m_enable_hmc) && (1<<m_data_in_hmc) && (1<<m_clk_hmc) && 
+  mask_write=(1<<m_enable_hmc) | (1<<m_data_in_hmc) | (1<<m_clk_hmc) | 
     (m_reset_hmc);
-  mask_read=(1<<m_data_in_hmc) || (1<<m_dummy);
-  mask_all=mask_write || mask_read;
+  mask_read=(1<<m_data_in_hmc) | (1<<m_dummy);
+  mask_all=mask_write | mask_read;
   
+  // Set enable high and CLK low
+  m_db_iface->set_gpio_out(m_unit,1 << m_enable_hmc,1 << m_enable_hmc ); 
+  m_db_iface->set_gpio_out(m_unit,0,1 << m_clk_hmc); 
 
-  m_db_iface->set_gpio_out(m_unit,1,1 << m_enable_hmc); // Set enable high
-  m_db_iface->set_gpio_out(m_unit,0,1 << m_clk_hmc); // Set CLK low
 
 
 };
@@ -352,16 +354,15 @@ void board_60GHz_base::write_row(uint16_t row_num, uint32_t value) {
 
   row_num_brs=0;
   for (int i1=0;i1<6;i1++)
-    row_num_brs=row_num_brs || (((row_num>>i1) && 1) << (5-i1));
+    row_num_brs=row_num_brs | (((row_num>>i1) && 1) << (5-i1));
 
   value_brs=0;
   for (int i1=0;i1<8;i1++)
-    value_brs=value_brs || (((value >>i1) && 1) << (7-i1));
+    value_brs=value_brs | (((value >>i1) && 1) << (7-i1));
 
-
-  total_write=(1<<14) || (0<<15) || (1<<16) || (1<<17); // R/W +chip address
-  total_write=total_write || value_brs;
-  total_write=total_write || (row_num_brs>>8);
+  total_write=(1<<14) | (0<<15) | (1<<16) | (1<<17); // R/W +chip address
+  total_write=total_write | value_brs;
+  total_write=total_write | (row_num_brs << 8);
 
 
   // Set enable low
@@ -396,7 +397,7 @@ void board_60GHz_base::write_row(uint16_t row_num, uint32_t value) {
   // LE high
   usleep(T/2);
   m_db_iface->set_gpio_out(m_unit,1 << m_enable_hmc,1 << m_enable_hmc);
-  
+  usleep(T*100);
 
 };
 
@@ -417,16 +418,16 @@ uint16_t board_60GHz_base::read_row(uint16_t row_num) {
 
   row_num_brs=0;
   for (int i1=0;i1<6;i1++)
-    row_num_brs=row_num_brs || (((row_num>>i1) && 1) << (5-i1));
+    row_num_brs=row_num_brs | (((row_num>>i1) && 1) << (5-i1));
 
   value_brs=0;
   for (int i1=0;i1<8;i1++)
-    value_brs=value_brs || (((value >>i1) && 1) << (7-i1));
+    value_brs=value_brs | (((value >>i1) && 1) << (7-i1));
 
 
-  total_write=(0<<14) || (0<<15) || (1<<16) || (1<<17); // R/W +chip address
-  total_write=total_write || value_brs;
-  total_write=total_write || (row_num_brs>>8);
+  total_write=(0<<14) | (0<<15) | (1<<16) | (1<<17); // R/W +chip address
+  total_write=total_write | value_brs;
+  total_write=total_write | (row_num_brs << 8);
 
 
   // Set enable low
@@ -477,8 +478,8 @@ uint16_t board_60GHz_base::read_row(uint16_t row_num) {
     m_db_iface->set_gpio_out(m_unit,1 << m_clk_hmc, 1 << m_clk_hmc);
     usleep(T/2);
     temp=m_db_iface->read_gpio(m_unit); 
-    temp=(temp >> m_data_out_hmc) & 1;
-    value=value || (temp << i1);
+    temp=(temp >> m_data_in_hmc) & 1;
+    value=value | (temp << i1);
     // Clock low
     m_db_iface->set_gpio_out(m_unit,0, 1 << m_clk_hmc);
     usleep(T/2);
