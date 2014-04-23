@@ -36,7 +36,7 @@ class board_60GHz_base {
   board_60GHz_base(uhd::usrp::dboard_iface::sptr db_iface,
 		      uhd::usrp::dboard_iface::unit_t unit,
 		 uint16_t enable_hmc, uint16_t data_in_hmc,
-		 uint16_t clk_hmc, uint16_t data_out_hmc, uint16_t reset_hmc);
+      uint16_t clk_hmc, uint16_t data_out_hmc, uint16_t reset_hmc);
 
   void write_row(uint16_t row_num, uint32_t value);
   uint16_t read_row(uint16_t row_num);
@@ -175,7 +175,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
 
     usleep(1e6);
     my_60GHz_board.write_row(3,3) ;
-    usleep(1e6);
+    usleep(1e6);    
     std::cout << "Read=" << my_60GHz_board.read_row(3) << "\n"; 
     exit(1);
 
@@ -364,8 +364,7 @@ board_60GHz_base::board_60GHz_base(uhd::usrp::dboard_iface::sptr db_iface,
 
   // Let reset go high
   m_db_iface->set_gpio_out(m_unit,1<< m_reset_hmc,1 << m_reset_hmc); 
-  usleep(1e5);
-  // Let reset go low
+  usleep(2e5);
   m_db_iface->set_gpio_out(m_unit,0,1 << m_reset_hmc); 
 
 };
@@ -390,8 +389,8 @@ void board_60GHz_base::write_row(uint16_t row_num, uint32_t value) {
   for (int i1=0;i1<8;i1++)
     value_brs=value_brs | (((value >>i1) & 1) << (7-i1));
 
-  //total_write=(1<<14) | (0<<15) | (1<<16) | (1<<17); // R/W +chip address
-  total_write=(1<<14) | (1<<15) | (1<<16) | (1<<17); // R/W +chip address
+  total_write=(1<<14) | (0<<15) | (1<<16) | (1<<17); // R/W +chip address
+  //total_write=(1<<14) | (1<<15) | (1<<16) | (1<<17); // R/W +chip address
   total_write=total_write | value;
   total_write=total_write | (row_num << 8);
 
@@ -460,15 +459,13 @@ uint16_t board_60GHz_base::read_row(uint16_t row_num) {
     value_brs=value_brs | (((value >>i1) & 1) << (7-i1));
 
 
-  //total_write=(0<<14) | (0<<15) | (1<<16) | (1<<17); // R/W +chip address
-  total_write=(0<<14) | (1<<15) | (1<<16) | (1<<17); // R/W +chip address
+  total_write=(0<<14) | (0<<15) | (1<<16) | (1<<17); // R/W +chip address
+  //total_write=(0<<14) | (1<<15) | (1<<16) | (1<<17); // R/W +chip address
   total_write=total_write | value;
   total_write=total_write | (row_num << 8);
 
-  
-  std::cout << "row_num=" << row_num << "\n";
-  std::cout << "row_num_brs=" << row_num_brs << "\n";
 
+ 
   // Set enable low
   m_db_iface->set_gpio_out(m_unit,0,1 << m_enable_hmc);
   usleep(T/2);
@@ -518,6 +515,10 @@ uint16_t board_60GHz_base::read_row(uint16_t row_num) {
     usleep(T/2);
     temp=m_db_iface->read_gpio(m_unit); 
     temp=(temp >> m_data_in_hmc) & 1;
+    if (temp==1)
+      temp=0;
+    else
+      temp=1;
     value=value | (temp << i1);
     // Clock low
     m_db_iface->set_gpio_out(m_unit,0, 1 << m_clk_hmc);
