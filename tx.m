@@ -10,7 +10,7 @@ function tx( Nsamples,RF_freq, X, ref_clk , gain, tx_rate, LOoffset, low_res)
 % 
 %
 % Nsamples: Repeat pattern length.
-%  RF_freq: Carrier frequency.
+%  RF_freq: Carrier frequency in Hz.
 %        X: Transmitted signal. Can be double but is intepreted as short.
 %  ref_clk: If =1 then the transmitter is locked to REF CLOCK.
 %           Set it to zero if you don't know.
