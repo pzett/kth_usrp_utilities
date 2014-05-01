@@ -454,17 +454,18 @@ board_60GHz_base::board_60GHz_base(uhd::usrp::dboard_iface::sptr db_iface,
   m_db_iface->set_gpio_out(m_unit,1 << m_enable_hmc,1 << m_enable_hmc ); 
   m_db_iface->set_gpio_out(m_unit,0,1 << m_clk_hmc); 
 
-  /*
+
+  /*  
   while (1) {
 
   m_db_iface->set_gpio_out(m_unit,1 << m_enable_hmc,1 << m_enable_hmc ); 
   usleep(1e3);
   m_db_iface->set_gpio_out(m_unit,0,1 << m_enable_hmc ); 
   usleep(1e3);
-
-
   };
   */
+  
+
 
 
   // Let reset go high
