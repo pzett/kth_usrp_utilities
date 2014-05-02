@@ -336,3 +336,82 @@ void board_60GHz_TX::set_gain(uint16_t tx_gain) {
   write_row(7,15+16*(13-tx_gain)); 
 
 };
+
+
+board_60GHz_RX::board_60GHz_RX(uhd::usrp::dboard_iface::sptr db_iface) :
+board_60GHz_base(db_iface,uhd::usrp::dboard_iface::UNIT_TX,
+				   ENABLE_HMC, DATA_IN_HMC, CLK_HMC,
+		 DATA_OUT_HMC, RESET_HMC,1+2+4) {
+
+
+    write_row(0,128); // Everthing on except ASK mod.
+    int bb_gain1=1; // 0-3
+    int bb_gain2=1; // 0-3
+    int bb_att1=3-bb_gain1;
+    int bb_att2=3-bb_gain2;
+    write_row(1,bb_att2+4*bb_att1); // Power on + gain control
+
+    int bb_gain_fineI=5; // 0-5
+    int bb_gain_fineQ=5; // 0-5
+
+    int bb_att_fineI=5-bb_gain_fineI;
+    int bb_att_fineQ=5-bb_gain_fineQ;
+
+
+    write_row(2,4*bb_att_fineQ+32*bb_att_fineI); 
+                                               // Normal operation
+
+    int bb_low_pass_corner=3; // 0=>1.4GHz, 1=>500MHz, 2=> 300MHz, 3=>200MHz.
+    int bb_high_pass_corner=2; // 0=>30kHz, 1=>300kHz, 2=>1.5MHz.
+
+    write_row(3,3+16*bb_high_pass_corner+64*bb_low_pass_corner);
+                                            // Normal operation
+    
+    write_row(4,158); // Normal operation
+
+    int if_gain=15; // 0-15
+    int if_att=15-if_gain;
+
+    write_row(5,15+16*if_att); // Normal operation
+    write_row(6,191); // Normal operation
+    write_row(7,109); // Normal operation
+    write_row(8,128); // Normal operation
+    write_row(9,0); // Normal operation
+    write_row(10,240); // 240+DIVRATIO<4>
+    write_row(11,16*(1+2+4)+2*3+1); // 16*DIVRATIO<3:0>+2*BAND+1
+    write_row(12,95); // Normal operation
+    write_row(13,128); // Normal operation
+    write_row(14,118); // Normal operation
+
+    
+    #if 0
+    for (int i1=0;i1<15;i1++) {
+      std::cout << "reg=" << i1 << " value=" << read_row(i1) 
+          << "\n";
+    };
+    #endif
+
+    std::cout << "Waiting for PLL lock \n";
+    int lock=read_row(15)>> 6;
+    while (lock!=1) {
+      std::cout << ".";
+      usleep(1e6);
+      lock=read_row(15)>> 6;
+    };
+    std::cout << "PLL has locked! \n";
+
+
+  
+
+
+}
+
+void board_60GHz_RX::set_gain(uint16_t rx_gain) {
+  if (rx_gain>15)
+    rx_gain=15;
+
+   int if_att=15-rx_gain;
+   write_row(5,15+16*if_att); // Normal operation
+
+};
+
