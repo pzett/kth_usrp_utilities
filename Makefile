@@ -20,6 +20,9 @@ tx: tx.o
 tx_60GHz: tx_60GHz.o 
 	$(CXX) -o $@ $^ $(LDLIBS) 
 #==============================================================
+rx_60GHz: rx_60GHz.o board_60GHz.o board_60GHz.hpp
+	$(CXX) -o $@ $^ $(LDLIBS) 
+
 
 square_elements_of_array_debug.cpp:	square_elements_of_array.cpp
 	cp square_elements_of_array.cpp square_elements_of_array_debug.cpp
