@@ -43,6 +43,8 @@ class board_60GHz_base {
 class board_60GHz_TX : public board_60GHz_base {
    public:   
    board_60GHz_TX(uhd::usrp::dboard_iface::sptr db_iface);
+   /* Set gain between 0 and 13. Steps are 1.3dB. */
+   void set_gain(uint16_t gain);
 }; 
 
 
