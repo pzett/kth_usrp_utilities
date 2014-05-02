@@ -131,7 +131,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
       dev->set_rx_antenna("J1");      
       //uhd::meta_range_t range=dev->get_tx_bandwidth_range();
 
-      if (LOoffset>=9e6) {
+      if (abs(LOoffset)>=6e6) {
 	dev->set_rx_bandwidth(3.96e+07);
       };      
     };

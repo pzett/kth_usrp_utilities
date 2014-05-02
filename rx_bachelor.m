@@ -13,7 +13,7 @@ function X=rx_bachelor(Nsamples)
 RF_freq=1784.9e6; % Center frequency.
 ref_clk=0;
 pps_trigger=0;
-gain=200;
+gain=45;
 rx_rate=1e5;
 LOoffset=10e6;
 
