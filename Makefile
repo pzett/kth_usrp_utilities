@@ -4,7 +4,7 @@ LDLIBS = -luhd -lboost_program_options
 
 #==============================================================
  
-all:	tx rx tx_60GHz harness
+all:	tx rx tx_60GHz harness rx_60GHz
 
 #==============================================================
 clean:

@@ -82,7 +82,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     //dev_addr["addr0"]="192.168.10.2";
     dev = uhd::usrp::multi_usrp::make(dev_addr);
 
-    dev->set_rx_subdev_spec(uhd::usrp::subdev_spec_t("A:A"), 0); // 60GHz
+    //dev->set_rx_subdev_spec(uhd::usrp::subdev_spec_t("A:A"), 0); // 60GHz
 
     stream_args.cpu_format="sc16";
     if (scaling_8bits==0.0) {
@@ -197,7 +197,6 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
        };
 	 
        num_rx_samps=num_rx_samps+num_rx_samps_latest_call;
-       std::cout << "num_rx_samps=" << num_rx_samps  << std::endl;
     };
 
 
