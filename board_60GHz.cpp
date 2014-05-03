@@ -345,14 +345,14 @@ board_60GHz_base(db_iface,uhd::usrp::dboard_iface::UNIT_TX,
 
 
     write_row(0,128); // Everthing on except ASK mod.
-    int bb_gain1=1; // 0-3
-    int bb_gain2=1; // 0-3
+    int bb_gain1=0; // 0-3
+    int bb_gain2=0; // 0-3
     int bb_att1=3-bb_gain1;
     int bb_att2=3-bb_gain2;
     write_row(1,bb_att2+4*bb_att1); // Power on + gain control
 
-    int bb_gain_fineI=5; // 0-5
-    int bb_gain_fineQ=5; // 0-5
+    int bb_gain_fineI=0; // 0-5
+    int bb_gain_fineQ=0; // 0-5
 
     int bb_att_fineI=5-bb_gain_fineI;
     int bb_att_fineQ=5-bb_gain_fineQ;
