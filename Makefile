@@ -17,7 +17,10 @@ rx: rx.o
 tx: tx.o 
 	$(CXX) -o $@ $^ $(LDLIBS) 
 #==============================================================
-tx_60GHz: tx_60GHz.o 
+#tx_60GHz: tx_60GHz.o 
+#	$(CXX) -o $@ $^ $(LDLIBS) 
+
+tx_60GHz: tx_60GHz.o board_60GHz.o board_60GHz.hpp 
 	$(CXX) -o $@ $^ $(LDLIBS) 
 #==============================================================
 rx_60GHz: rx_60GHz.o board_60GHz.o board_60GHz.hpp

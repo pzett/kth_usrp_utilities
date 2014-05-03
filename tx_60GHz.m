@@ -1,8 +1,8 @@
-function tx( Nsamples,RF_freq, X, ref_clk , gain, tx_rate, LOoffset, low_res)
+function tx_60GHz( Nsamples, X, ref_clk , gain, tx_rate, LOoffset, low_res)
 
 %
 % 
-% function tx( Nsamples,RF_freq, X, ref_clk, gain, tx_rate, LOoffset, low_res)
+% function tx_60GHz( Nsamples, , X, ref_clk, gain, tx_rate, LOoffset, low_res)
 %
 % General description:
 % Zero-pads the signal X to length Nsamples and then loops
@@ -10,7 +10,6 @@ function tx( Nsamples,RF_freq, X, ref_clk , gain, tx_rate, LOoffset, low_res)
 % 
 %
 % Nsamples: Repeat pattern length.
-%  RF_freq: Carrier frequency in Hz.
 %        X: Transmitted signal. Can be double but is intepreted as short.
 %  ref_clk: If =1 then the transmitter is locked to REF CLOCK.
 %           Set it to zero if you don't know.
@@ -30,6 +29,7 @@ if ~exist('low_res')
     low_res=8;
 end;
 
+RF_freq=70e6;
 
 if (size(X,2)<size(X,1))
     X=conj(X');
@@ -57,7 +57,7 @@ fwrite(fid,temp,'int16');
 fclose(fid);
 
 
-cmd_str=['sudo ./tx '];
+cmd_str=['sudo ./tx_60GHz '];
 
 cmd_str=[cmd_str,' --nsamp ',num2str(Nsamples),' --filename ',filename];
 cmd_str=[cmd_str,' --freq ',num2str(RF_freq),' --txrate ',num2str(tx_rate),' '];
@@ -74,4 +74,4 @@ end;
 
 
 
-%system(cmd_str);
+system(cmd_str);
