@@ -339,7 +339,7 @@ void board_60GHz_TX::set_gain(uint16_t tx_gain) {
 
 
 board_60GHz_RX::board_60GHz_RX(uhd::usrp::dboard_iface::sptr db_iface) :
-board_60GHz_base(db_iface,uhd::usrp::dboard_iface::UNIT_TX,
+board_60GHz_base(db_iface,uhd::usrp::dboard_iface::UNIT_RX,
 				   ENABLE_HMC, DATA_IN_HMC, CLK_HMC,
 		 DATA_OUT_HMC, RESET_HMC,1+2+4) {
 
