@@ -51,6 +51,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     double scaling_8bits;
     std::string filename;
     float gain;
+    std::string dev_addr_str;
     uhd::device_addr_t dev_addr;
     uhd::usrp::multi_usrp::sptr dev;
     uhd::tune_result_t tr;
@@ -72,14 +73,17 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
         ("gain",po::value<float>(&gain)->default_value(0), "set the receiver gain (0-15)") 
         ("8bits_scaling",po::value<double>(&scaling_8bits)->default_value(0.0), 
     "input scaling (invers) when 8bits is used, set to zero to get 16bits")
+       ("dev_addr",po::value<std::string>(&dev_addr_str)->default_value("192.168.10.2"), 
+    "IP address of USRP")
+
     ;
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
     po::notify(vm);
 
 
-    dev_addr["addr0"]="192.168.10.2";
     //dev_addr["addr0"]="192.168.10.2";
+    dev_addr["addr0"]=dev_addr_str;
     dev = uhd::usrp::multi_usrp::make(dev_addr);
 
     //dev->set_rx_subdev_spec(uhd::usrp::subdev_spec_t("A:A"), 0); // 60GHz
