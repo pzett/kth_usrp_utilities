@@ -46,11 +46,9 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     double tx_rate, freq, LOoffset;
     float gain;
     bool forever, use_8bits;
-    bool use_external_10MHz; 
     std::string filename;
     uhd::tx_streamer::sptr tx_stream;
     uhd::device_addr_t dev_addr;
-    std::string dev_addr_str;
     uhd::usrp::multi_usrp::sptr dev;
     uhd::stream_args_t stream_args;
 
@@ -65,23 +63,19 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
         ("freq", po::value<double>(&freq)->default_value(70e6), "rf center frequency in Hz")
         ("LOoffset", po::value<double>(&LOoffset)->default_value(0), "Offset between main LO and center frequency")
         ("forever",po::value<bool>(&forever)->default_value(true), "run indefinetly")
-        ("10MHz",po::value<bool>(&use_external_10MHz)->default_value(false), 
-	     "external 10MHz on 'REF CLOCK' connector (true=1=yes)")
       //("PPS",po::value<bool>(&trigger_with_pps)->default_value(false), 
       //      "trigger reception with 'PPS IN' connector (true=1=yes)")
         ("filename",po::value<std::string>(&filename)->default_value("data_to_usrp.dat"), "input filename")
         ("gain",po::value<float>(&gain)->default_value(13), "gain of transmitter(0-13) ")
         ("8bits",po::value<bool>(&use_8bits)->default_value(false), "Use eight bits/sample to increase bandwidth")
-       ("dev_addr",po::value<std::string>(&dev_addr_str)->default_value("192.168.10.2"), 
-    "IP address of USRP")
 
     ;
 
     
-    
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
     po::notify(vm);
+
 
     //print the help message
     if (vm.count("help")){
@@ -89,9 +83,14 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
         return ~0;
     }
 
-    /* Create buffer storage */
-    std::complex<int16_t> *buffer;
-    buffer = new std::complex<int16_t>[total_num_samps];
+   uint32_t no_chan=2;
+   // Create storage for the entire transmitted signal.
+   std::complex<int16_t> *d_buffer;
+   std::vector<const void *> d_tx_buffers; 
+   for (uint32_t i1=0;i1<no_chan;i1++) {
+     d_buffer = new std::complex<int16_t>[total_num_samps];   
+     d_tx_buffers.push_back(d_buffer);
+   };
 
 
     /* Read input from disc */
@@ -101,41 +100,51 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
 	perror(filename.c_str());
 	return 1;
     }
-    int r=fread(buffer, sizeof(uint32_t),total_num_samps, fp);
-    printf("r=%d \n",r);
+    for (uint32_t i1=0;i1<no_chan;i1++) {
+      d_buffer = (std::complex<short int>*) d_tx_buffers[i1];
+      fread(d_buffer, sizeof(uint32_t),total_num_samps, fp);
+    };
     fclose(fp);
 
 
+
     //create a usrp device and streamer
-    dev_addr["addr0"]=dev_addr_str;
+    dev_addr["addr0"]="192.168.10.2";
+    dev_addr["addr1"]="192.168.20.2";
     dev = uhd::usrp::multi_usrp::make(dev_addr);    
 
 
     // Internal variables 
     uhd::clock_config_t my_clock_config; 
 
-    if (!forever) {
-      dev->set_time_source("external");
-    };
-
-    if (use_external_10MHz) { 
-      dev->set_clock_source("external");
-    }
-    else {
-      dev->set_clock_source("internal");
-    };
 
 
-    uhd::usrp::dboard_iface::sptr db_iface;
-    db_iface=dev->get_tx_dboard_iface(0);
+    //make mboard 1 a slave over the MIMO Cable
+    dev->set_clock_source("mimo", 1);
+    dev->set_time_source("mimo", 1);
 
-    board_60GHz_TX  my_60GHz_TX(db_iface);  //60GHz 
-    my_60GHz_TX.set_gain(gain); // 60GHz
+    //set time on the master (mboard 0)
+    dev->set_time_now(uhd::time_spec_t(0.0), 0);
+
+    //sleep a bit while the slave locks its time to the master
+    usleep(100e3);
+
+
+
+    uhd::usrp::dboard_iface::sptr db_iface0, db_iface1; 
+    db_iface0=dev->get_tx_dboard_iface(0);
+    db_iface1=dev->get_tx_dboard_iface(1);
+
+    board_60GHz_TX  my_60GHz_TX0(db_iface0);  //60GHz 
+    my_60GHz_TX0.set_gain(gain); // 60GHz
+    board_60GHz_TX  my_60GHz_TX1(db_iface1);  //60GHz 
+    my_60GHz_TX1.set_gain(gain); // 60GHz
 
     uhd::tune_result_t tr;
     uhd::tune_request_t trq(freq,LOoffset); //std::min(tx_rate,10e6));
     tr=dev->set_tx_freq(trq,0);
-    
+    tr=dev->set_tx_freq(trq,1);
+   
 
     //dev->set_tx_gain(gain);
     std::cout << tr.to_pp_string() << "\n";
@@ -146,6 +155,10 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
       stream_args.otw_format="sc8";
     else
       stream_args.otw_format="sc16";
+    std::vector<size_t> channels;
+    channels.push_back(0);
+    channels.push_back(1);
+    stream_args.channels=channels;
 
     tx_stream=dev->get_tx_stream(stream_args);
 
@@ -154,8 +167,8 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     std::cout << boost::format("Setting TX Rate: %f Msps...") % (tx_rate/1e6) << std::endl;
     dev->set_tx_rate(tx_rate);
     std::cout << boost::format("Actual TX Rate: %f Msps...") % (dev->get_tx_rate()/1e6) << std::endl;
-    std::cout << boost::format("Setting device timestamp to 0...") << std::endl;
 
+    
 
     
 
@@ -169,29 +182,13 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
       md.end_of_burst = false;
       md.has_time_spec = false;
       
-     
-      //send the entire buffer, let the driver handle fragmentation
-
-      /*
-      num_tx_samps = dev->send(
-      buffer, total_num_samps, md,
-      uhd::io_type_t::COMPLEX_INT16,
-      uhd::device::SEND_MODE_FULL_BUFF);
-      */
-      tx_stream->send(buffer,total_num_samps,md,60);
+      tx_stream->send(d_tx_buffers,total_num_samps,md,60);
       
       md.start_of_burst = false;
 
       while (1) {
 
-	/*
-	num_tx_samps = dev->send(
-        buffer, total_num_samps, md,
-        uhd::io_type_t::COMPLEX_INT16,
-        uhd::device::SEND_MODE_FULL_BUFF
-         );
-	*/
-        tx_stream->send(buffer,total_num_samps,md,3);
+        tx_stream->send(d_tx_buffers,total_num_samps,md,3);
 
 	md.start_of_burst = false;
 	md.end_of_burst = false;
@@ -208,17 +205,8 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     md.has_time_spec = true;
     md.time_spec = uhd::time_spec_t(seconds_in_future);
 
-    //send the entire buffer, let the driver handle fragmentation
-
-    /*
-      num_tx_samps = dev->send(
-	buffer, total_num_samps, md,
-        //&buff.front(), buff.size(), md,
-        uhd::io_type_t::COMPLEX_FLOAT32,
-        uhd::device::SEND_MODE_FULL_BUFF);
-    */
     
-    tx_stream->send(buffer,total_num_samps,md,60);
+    tx_stream->send(d_tx_buffers,total_num_samps,md,60);
     
 
     };
