@@ -117,8 +117,6 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     // Internal variables 
     uhd::clock_config_t my_clock_config; 
 
-
-
     //make mboard 1 a slave over the MIMO Cable
     dev->set_clock_source("mimo", 1);
     dev->set_time_source("mimo", 1);
