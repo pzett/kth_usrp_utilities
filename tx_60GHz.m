@@ -1,8 +1,8 @@
-function tx_60GHz( Nsamples, X, ref_clk , gain, tx_rate, LOoffset, low_res)
+function tx_60GHz( Nsamples, X, ref_clk , gain, tx_rate, LOoffset, low_res, dev_addr)
 
 %
 % 
-% function tx_60GHz( Nsamples, , X, ref_clk, gain, tx_rate, LOoffset, low_res)
+% function tx_60GHz( Nsamples, X, ref_clk, gain, tx_rate, LOoffset, low_res, dev_addr)
 %
 % General description:
 % Zero-pads the signal X to length Nsamples and then loops
@@ -15,9 +15,11 @@ function tx_60GHz( Nsamples, X, ref_clk , gain, tx_rate, LOoffset, low_res)
 %           Set it to zero if you don't know.
 %     gain: Gain of the analog transmitter chain.
 %  tx_rate: Sample-rate. Default 25MHz.
-% low_res: If =1 then 8bits per sample (real and imag) is used.
+%  low_res: If =1 then 8bits per sample (real and imag) is used.
+% dev_addr: IP address of USRP.
 
 filename='data_to_usrp.dat';
+
 
 if ~exist('tx_rate')
     tx_rate=25e6;
@@ -26,7 +28,10 @@ if ~exist('LOoffset')
     LOoffset=0;
 end;
 if ~exist('low_res')
-    low_res=8;
+    low_res=0;
+end;
+if ~exist('dev_addr')
+    dev_addr='192.168.10.2';
 end;
 
 RF_freq=70e6;
@@ -64,6 +69,9 @@ cmd_str=[cmd_str,' --freq ',num2str(RF_freq),' --txrate ',num2str(tx_rate),' '];
 cmd_str=[cmd_str,' --gain ',num2str(gain),' '];
 cmd_str=[cmd_str,' --forever true '];
 cmd_str=[cmd_str,' --LOoffset=',num2str(LOoffset)];
+cmd_str=[cmd_str,' --dev_addr=',dev_addr];
+
+
 
 if (ref_clk)
     cmd_str=[cmd_str,' --10MHz true '];

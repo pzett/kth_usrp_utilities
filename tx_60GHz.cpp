@@ -50,6 +50,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     std::string filename;
     uhd::tx_streamer::sptr tx_stream;
     uhd::device_addr_t dev_addr;
+    std::string dev_addr_str;
     uhd::usrp::multi_usrp::sptr dev;
     uhd::stream_args_t stream_args;
 
@@ -71,6 +72,9 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
         ("filename",po::value<std::string>(&filename)->default_value("data_to_usrp.dat"), "input filename")
         ("gain",po::value<float>(&gain)->default_value(13), "gain of transmitter(0-13) ")
         ("8bits",po::value<bool>(&use_8bits)->default_value(false), "Use eight bits/sample to increase bandwidth")
+       ("dev_addr",po::value<std::string>(&dev_addr_str)->default_value("192.168.10.2"), 
+    "IP address of USRP")
+
     ;
 
     
@@ -103,7 +107,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
 
 
     //create a usrp device and streamer
-    dev_addr["addr0"]="192.168.10.2";
+    dev_addr["addr0"]=dev_addr_str;
     dev = uhd::usrp::multi_usrp::make(dev_addr);    
 
 
