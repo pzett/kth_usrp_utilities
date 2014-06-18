@@ -8,9 +8,11 @@ function X=rx_60GHz_MIMO(Nsamples,gain,rx_rate,LOoffset,scaling_8bits)
 %          gain: Receiver gain of analog section.
 %       rx_rate: Sample-rate. Default 25MHz.
 %       LOoffset: Offset between RF LO and actually used frequency.
-% scaling_8_bits: If ==0 then 16bits is used. If <>0 then 8 bits are used. Sets to max amplitude.
-%                 The parameter scaling_bits should then be set to the maximum 
-%                 amplitude expected.
+% scaling_8_bits: If ==0 then 16bits is used. If <>0 then 8 bits are used. 
+%	          If >0 then scaling_bits should then be set to the maximum 
+%                 amplitude expected divided by 2^15.
+%                 If <0 then scaling_8_bits is automatically set
+%                 using a safety margin of abs(scaling_8_bits).
 
 
 

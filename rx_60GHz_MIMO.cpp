@@ -182,6 +182,8 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
        
        std::cout << "max_value=" << max_value << "\n";
        scaling_8bits=max_value*3.0518e-05*abs(scaling_8bits);
+       if (scaling_8bits<0.0039062)
+	 scaling_8bits=0.0039062;
        std::cout << "scaling_8bits=" << scaling_8bits << "\n";
 
     };
@@ -224,12 +226,11 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
      d_rx_buffers_short.push_back(d_buffer_rx);
    };
 
-
     
   
     stream_cmd.num_samps = total_num_samps;
     stream_cmd.stream_now = false;
-    stream_cmd.time_spec = uhd::time_spec_t(1.3);
+    stream_cmd.time_spec = uhd::time_spec_t(0.6);
     rx_stream->issue_stream_cmd(stream_cmd);
 
 
