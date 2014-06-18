@@ -114,11 +114,6 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     dev = uhd::usrp::multi_usrp::make(dev_addr);    
 
 
-    // Internal variables 
-    uhd::clock_config_t my_clock_config; 
-
-
-
     //make mboard 1 a slave over the MIMO Cable
     dev->set_clock_source("mimo", 1);
     dev->set_time_source("mimo", 1);
@@ -145,8 +140,6 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     tr=dev->set_tx_freq(trq,0);
     tr=dev->set_tx_freq(trq,1);
    
-
-    //dev->set_tx_gain(gain);
     std::cout << tr.to_pp_string() << "\n";
  
 

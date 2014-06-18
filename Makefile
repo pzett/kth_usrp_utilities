@@ -4,7 +4,7 @@ LDLIBS = -luhd -lboost_program_options
 
 #==============================================================
  
-all:	tx rx tx_60GHz harness rx_60GHz tx_60GHz_MIMO
+all:	tx rx tx_60GHz harness rx_60GHz tx_60GHz_MIMO rx_60GHz_MIMO
 
 #==============================================================
 clean:
@@ -26,6 +26,14 @@ rx_60GHz: rx_60GHz.o board_60GHz.o board_60GHz.hpp
 #==============================================================
 tx_60GHz_MIMO: tx_60GHz_MIMO.o board_60GHz.o board_60GHz.hpp 
 	$(CXX) -o $@ $^ $(LDLIBS) 
+#==============================================================
+rx_60GHz_MIMO: rx_60GHz_MIMO.o board_60GHz.o board_60GHz.hpp 
+	$(CXX) -o $@ $^ $(LDLIBS) 
+#==============================================================
+rx_multi_samples: rx_multi_samples.o board_60GHz.o board_60GHz.hpp 
+	$(CXX) -o $@ $^ $(LDLIBS) 
+#==============================================================
+
 
 
 
