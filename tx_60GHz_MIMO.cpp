@@ -113,7 +113,6 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     dev_addr["addr1"]="192.168.20.2";
     dev = uhd::usrp::multi_usrp::make(dev_addr);    
 
-
     //make mboard 1 a slave over the MIMO Cable
     dev->set_clock_source("mimo", 1);
     dev->set_time_source("mimo", 1);
