@@ -108,6 +108,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     std::cout << "rx_rate=" << rx_rate << "\n";
     dev->set_rx_rate(rx_rate);
 
+
     //make mboard 1 a slave over the MIMO Cable
     dev->set_clock_source("mimo", 1);
     dev->set_time_source("mimo", 1);
@@ -118,13 +119,74 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     //sleep a bit while the slave locks its time to the master
     usleep(100e3);
 
-
-    std::cout << "a=" << (dev->get_time_now(0)).get_real_secs() << "\n";
-    std::cout << "b=" << (dev->get_time_now(1)).get_real_secs() << "\n";
-   
-
-
     //dev->set_rx_subdev_spec(uhd::usrp::subdev_spec_t("A:A"), 0); 
+
+
+ // Create storage for the entire received signal.
+
+
+
+
+    uhd::stream_cmd_t stream_cmd(uhd::stream_cmd_t::STREAM_MODE_NUM_SAMPS_AND_DONE);
+    uhd::rx_metadata_t md;
+    size_t num_rx_samps_latest_call;
+
+
+    std::cout << "scaling_8bits=" << scaling_8bits << "\n";
+    if (scaling_8bits<-0) {
+
+
+      std::vector<size_t> channels;
+      channels.push_back(0);
+      channels.push_back(1);
+      stream_args.channels=channels;
+
+      stream_args.cpu_format="sc16";
+      stream_args.otw_format="sc16";     
+      rx_stream=dev->get_rx_stream(stream_args);
+      std::complex<int16_t> *d_buffer_rx;
+
+      uint32_t buffer_size=rx_stream->get_max_num_samps();
+      stream_cmd.num_samps = buffer_size;
+      stream_cmd.stream_now = false;
+      stream_cmd.time_spec = uhd::time_spec_t(0.3);
+
+
+      std::vector<std::complex<int16_t> *> d_rx_buffers_short;
+      uint32_t no_chan=2;
+
+
+      for (uint32_t i1=0;i1<no_chan;i1++) {
+        d_buffer_rx = new std::complex<int16_t>[buffer_size];   
+        d_rx_buffers_short.push_back(d_buffer_rx);
+      };
+
+      rx_stream->issue_stream_cmd(stream_cmd);
+
+       num_rx_samps_latest_call=0;             
+       while (num_rx_samps_latest_call==0) {
+	  num_rx_samps_latest_call= 
+	   rx_stream->recv(d_rx_buffers_short,buffer_size, md, 3.0);
+       };
+
+       double max_value=0.0;
+       double new_value;
+       for (uint32_t i1=0;i1<no_chan;i1++) {
+	 for (uint32_t i2=10;i2<num_rx_samps_latest_call;i2++){ 
+	    new_value=abs(d_rx_buffers_short[i1][i2]);
+	    if (new_value>max_value) {
+	      max_value=new_value;
+	    };
+         };
+       };
+       
+       std::cout << "max_value=" << max_value << "\n";
+       scaling_8bits=max_value*3.0518e-05*abs(scaling_8bits);
+       std::cout << "scaling_8bits=" << scaling_8bits << "\n";
+
+    };
+
+
 
     stream_args.cpu_format="sc16";
     if (scaling_8bits==0.0) {
@@ -143,12 +205,6 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
 
     rx_stream=dev->get_rx_stream(stream_args);
 
-
-
-
-
-
-   // Create storage for the entire received signal.
    std::complex<int16_t> *d_buffer_rx;
    std::vector<std::complex<int16_t> *> d_rx_buffers;
    uint32_t no_chan=2;
@@ -157,6 +213,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
      d_buffer_rx = new std::complex<int16_t>[total_num_samps];   
      d_rx_buffers.push_back(d_buffer_rx);
    };
+
 
    // Create storage for a single buffer
    uint32_t buffer_size=rx_stream->get_max_num_samps();
@@ -168,28 +225,19 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
    };
 
 
-
-    uhd::stream_cmd_t stream_cmd(uhd::stream_cmd_t::STREAM_MODE_NUM_SAMPS_AND_DONE);
-
     
   
     stream_cmd.num_samps = total_num_samps;
     stream_cmd.stream_now = false;
     stream_cmd.time_spec = uhd::time_spec_t(1.3);
-
-    //stream_cmd.stream_mode=uhd::stream_cmd_t::STREAM_MODE_START_CONTINUOUS;
-
-    //stream_cmd.time_spec = uhd::time_spec_t(seconds_in_future);
     rx_stream->issue_stream_cmd(stream_cmd);
 
 
     size_t num_rx_samps=0;
-    size_t num_rx_samps_latest_call;
 
 
     std::cout << "buffer_size=" << buffer_size  <<  "\n";
 
-    uhd::rx_metadata_t md;
     while (num_rx_samps<total_num_samps) {
  
 

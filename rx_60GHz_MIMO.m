@@ -36,13 +36,11 @@ cmd_str=[cmd_str,' --LOoffset=',num2str(LOoffset)];
 %if (pps_trigger)
 %    cmd_str=[cmd_str,' --PPS=true '];
 %end;
-if (scaling_8bits>0)
+if (abs(scaling_8bits)>0)
   cmd_str=[cmd_str,' --8bits_scaling=',num2str(scaling_8bits)];
 end;
 
-
 system(cmd_str);
-
 
 no_chans=2;
 fid=fopen(filename,'r');
