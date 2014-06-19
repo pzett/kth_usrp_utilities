@@ -106,22 +106,10 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     };
     fclose(fp);
 
-
-
     //create a usrp device and streamer
     dev_addr["addr0"]="192.168.10.2";
     dev_addr["addr1"]="192.168.20.2";
     dev = uhd::usrp::multi_usrp::make(dev_addr);    
-
-    //make mboard 1 a slave over the MIMO Cable
-    dev->set_clock_source("mimo", 1);
-    dev->set_time_source("mimo", 1);
-
-    //set time on the master (mboard 0)
-    dev->set_time_now(uhd::time_spec_t(0.0), 0);
-
-    //sleep a bit while the slave locks its time to the master
-    usleep(100e3);
 
 
 
@@ -133,6 +121,17 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     my_60GHz_TX0.set_gain(gain); // 60GHz
     board_60GHz_TX  my_60GHz_TX1(db_iface1);  //60GHz 
     my_60GHz_TX1.set_gain(gain); // 60GHz
+
+    //make mboard 1 a slave over the MIMO Cable
+    dev->set_clock_source("mimo", 1);
+    dev->set_time_source("mimo", 1);
+
+    //set time on the master (mboard 0)
+    dev->set_time_now(uhd::time_spec_t(0.0), 0);
+
+    //sleep a bit while the slave locks its time to the master
+    usleep(100e3);
+
 
     uhd::tune_result_t tr;
     uhd::tune_request_t trq(freq,LOoffset); //std::min(tx_rate,10e6));
@@ -159,10 +158,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     std::cout << boost::format("Setting TX Rate: %f Msps...") % (tx_rate/1e6) << std::endl;
     dev->set_tx_rate(tx_rate);
     std::cout << boost::format("Actual TX Rate: %f Msps...") % (dev->get_tx_rate()/1e6) << std::endl;
-
-    
-
-    
+      
 
     uhd::tx_metadata_t md;
 
@@ -172,7 +168,8 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
 
       md.start_of_burst = true;
       md.end_of_burst = false;
-      md.has_time_spec = false;
+      md.has_time_spec = true;
+      md.time_spec=uhd::time_spec_t(1.3);
       
       tx_stream->send(d_tx_buffers,total_num_samps,md,60);
       
