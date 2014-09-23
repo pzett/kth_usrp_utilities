@@ -82,11 +82,87 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     po::notify(vm);
 
 
-    //dev_addr["addr0"]="192.168.10.2";
     dev_addr["addr0"]=dev_addr_str;
     dev = uhd::usrp::multi_usrp::make(dev_addr);
 
-    //dev->set_rx_subdev_spec(uhd::usrp::subdev_spec_t("A:A"), 0); // 60GHz
+
+    //create a usrp device
+    std::cout << std::endl;
+    uhd::device::sptr udev = dev->get_device();
+    dev->set_rx_rate(rx_rate);
+    uhd::tune_request_t trq(freq,LOoffset); 
+    tr=dev->set_rx_freq(trq);
+
+
+    uhd::usrp::dboard_iface::sptr db_iface;
+    db_iface=dev->get_tx_dboard_iface(0);
+       
+    board_60GHz_RX my_60GHz_RX(db_iface);    // 60GHz
+    my_60GHz_RX.set_gain(gain);    // 60GHz
+
+
+    uhd::clock_config_t my_clock_config; 
+
+    if (use_external_10MHz) {
+      dev->set_clock_config(my_clock_config); 
+      usleep(1e6); // Wait for the 10MHz to lock
+    }; 
+
+
+    if (scaling_8bits<0) {
+
+
+      stream_args.cpu_format="sc16";
+      stream_args.otw_format="sc16";     
+      rx_stream=dev->get_rx_stream(stream_args);
+      std::complex<int16_t> *d_buffer_rx;
+
+
+    uhd::stream_cmd_t stream_cmd(uhd::stream_cmd_t::STREAM_MODE_NUM_SAMPS_AND_DONE);    
+
+      uint32_t buffer_size=rx_stream->get_max_num_samps();
+      stream_cmd.num_samps = buffer_size;
+      stream_cmd.stream_now = true;    
+      stream_cmd.stream_mode=uhd::stream_cmd_t::STREAM_MODE_START_CONTINUOUS;
+
+      std::cout << "buffer_size=" << buffer_size << "\n";
+
+
+      d_buffer_rx = new std::complex<int16_t>[buffer_size];   
+      rx_stream->issue_stream_cmd(stream_cmd);
+
+
+       uhd::rx_metadata_t md;
+       size_t num_rx_samps_latest_call=0;             
+       while (num_rx_samps_latest_call==0) {
+	  num_rx_samps_latest_call= 
+	   rx_stream->recv(&d_buffer_rx[0],buffer_size, md, 3.0);
+       };
+
+
+      
+
+       double max_value=0.0;
+       double new_value;
+       for (uint32_t i2=10;i2<num_rx_samps_latest_call;i2++){ 
+	  new_value=abs(d_buffer_rx[i2]);
+	  if (new_value>max_value) {
+	      max_value=new_value;
+	  };
+       };
+       
+       std::cout << "max_value=" << max_value << "\n";
+       scaling_8bits=max_value*3.0518e-05*abs(scaling_8bits);
+       if (scaling_8bits<0.0039062)
+	 scaling_8bits=0.0039062;
+       std::cout << "scaling_8bits=" << scaling_8bits << "\n";
+
+    };
+
+
+
+
+
 
     stream_args.cpu_format="sc16";
     if (scaling_8bits==0.0) {
@@ -100,13 +176,6 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
 
     rx_stream=dev->get_rx_stream(stream_args);
 
-    uhd::clock_config_t my_clock_config; 
-
-    #if 0
-    if (trigger_with_pps) {
-      my_clock_config.pps_source=uhd::clock_config_t::PPS_SMA; 
-    };
-    #endif
 
     if (use_external_10MHz) { 
       my_clock_config.ref_source=uhd::clock_config_t::REF_SMA; 
@@ -118,25 +187,6 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
         return ~0;
     }
 
-    //create a usrp device
-    std::cout << std::endl;
-    uhd::device::sptr udev = dev->get_device();
-    dev->set_rx_rate(rx_rate);
-    uhd::tune_request_t trq(freq,LOoffset); 
-    tr=dev->set_rx_freq(trq);
-    
-
-    uhd::usrp::dboard_iface::sptr db_iface;
-    db_iface=dev->get_tx_dboard_iface(0);
-       
-    board_60GHz_RX my_60GHz_RX(db_iface);    // 60GHz
-    my_60GHz_RX.set_gain(gain);    // 60GHz
-
-
-    if (use_external_10MHz) {
-      dev->set_clock_config(my_clock_config); 
-      usleep(1e6); // Wait for the 10MHz to lock
-    }; 
 
     size_t buffer_size=1000; // Select buffer size
     short *buff_short, *storage_short;
@@ -146,25 +196,11 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
                                                 // buffer
 
 
-
-
-    /*if (trigger_with_pps) {
-      dev->set_time_next_pps(uhd::time_spec_t(0.0));
-      usleep(1e6); 
-      } */
-    //else {
-      dev->set_time_now(uhd::time_spec_t(0.0));
-      //};
+    dev->set_time_now(uhd::time_spec_t(0.0));
     std::cout << boost::format("Setting device timestamp to 0...") << std::endl;
 
-    //setup streaming
-    //std::cout << std::endl;
-    //std::cout << boost::format("Begin streaming %u samples, %d seconds in the future...")
-    //    % total_num_samps % seconds_in_future << std::endl;
-    uhd::stream_cmd_t stream_cmd(uhd::stream_cmd_t::STREAM_MODE_NUM_SAMPS_AND_DONE);
+    uhd::stream_cmd_t stream_cmd(uhd::stream_cmd_t::STREAM_MODE_NUM_SAMPS_AND_DONE);    
     
-    
-
     stream_cmd.num_samps = buffer_size;
     stream_cmd.stream_now = true;
     stream_cmd.stream_mode=uhd::stream_cmd_t::STREAM_MODE_START_CONTINUOUS;

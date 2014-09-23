@@ -1,4 +1,15 @@
 
+usrp_addr='192.168.20.2';
+use_50Msps=1;
+
+
+if (use_50Msps)
+  rate=50e6;
+  scaling_8bits=-2;
+else
+  rate=25e6;
+  scaling_8bits=0;
+end;
 
 
 gain_rx=14;
@@ -6,14 +17,13 @@ rand('twister',0);
 bits_in=rand(1,1888)>0.5;
 %load bits_in
 [waveform, parameters]=modem_OFDM3(60,4,1,1,1,bits_in);
-%tx_60GHz(5000, waveform*5000/sqrt(parameters.power),0, 13, 25e6);
-scale=0.2;
 
-
-X=rx_60GHz(10000,0,gain_rx,25e6,0);
-%X=rx_60GHz(10000,0,gain_rx,50e6,0,scale);
+X=rx_60GHz(10000,0,gain_rx,rate,scaling_8bits);
 
 [ start_pos, f_offset] = synchronize_OFDM1(X(1:5000), parameters,1,1, 1);
+
+f_offset
+
 X=X.*exp(-j*2*pi*f_offset*(1:length(X)));
 
 while (1)
@@ -31,11 +41,13 @@ while (1)
   plot(abs(X))
   title('60GHz transmission','FontSize',48);
   pause(1);
-  X=rx_60GHz(10000,0,gain_rx,25e6,0);
-  %X=rx_60GHz(10000,0,gain_rx,50e6,0,scale);
-  scale=max(abs(X))/2^15*2;
-  X=X.*exp(-j*2*pi*f_offset*(1:length(X)));
-  [ start_pos, f_offsett] = synchronize_OFDM1(X(1:5000), parameters,0,1, 1);
+
+  X=rx_60GHz(10000,0,gain_rx,rate,scaling_8bits);  
+  X=X.*exp(-j*2*pi*f_offset*(1:length(X))); 
+  % Use the frequency offset that was computed the first time
+  estimate_freq_offset = 0; % Do not estimate frequency offset 
+		            % in the following steps
+  [ start_pos, f_offset_UNUSED] = synchronize_OFDM1(X(1:5000), parameters,estimate_freq_offset,1, 1); 
 end;
 
 

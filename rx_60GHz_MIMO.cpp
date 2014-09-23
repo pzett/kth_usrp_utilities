@@ -133,7 +133,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
 
 
     std::cout << "scaling_8bits=" << scaling_8bits << "\n";
-    if (scaling_8bits<-0) {
+    if (scaling_8bits<0) {
 
 
       std::vector<size_t> channels;
