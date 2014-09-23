@@ -167,7 +167,6 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
 
     stream_cmd.num_samps = buffer_size;
     stream_cmd.stream_now = true;
-    
     stream_cmd.stream_mode=uhd::stream_cmd_t::STREAM_MODE_START_CONTINUOUS;
 
     //stream_cmd.time_spec = uhd::time_spec_t(seconds_in_future);
