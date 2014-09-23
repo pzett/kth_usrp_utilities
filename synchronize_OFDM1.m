@@ -1,7 +1,7 @@
 function [  start_pos, f_offset] = synchronize_OFDM1 ( waveform, parameters , estimate_freq_offset, T, oversamp)
 
 Nfft_sync=2^16;
-train=parameters.train;
+train=parameters.train; % Length 138 sequence
 Nlags=length(waveform)-oversamp*length(train)+1;
 Criterion=zeros(1,Nlags);
 FrequencyIx=zeros(1,Nlags);
@@ -23,7 +23,7 @@ if (estimate_freq_offset)
             Criterion(i1)=p;
             FrequencyIx(i1)=fi;
         end;
-    else
+    else % ???m==2, i.e. MIMO???
         for i1=1:Nlags
             de_spread=waveform(:,i1-1+(1:length(train))).*train_big;
             [p,fi]=max(sum(abs(fft(de_spread',Nfft_sync)').^2));
