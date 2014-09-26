@@ -74,8 +74,8 @@ for i1=[1:known_pos-1,known_pos+1:Ns]
    pos=start_pos+(re_order(i1)-1)*(Nfft+Np);
    received_symbol=fft(waveform(pos+(0:(Nfft-1))));
    power=power+mean(abs( waveform(pos+(0:(Nfft-1)))).^2);
-   demodulator_input=received_symbol./conj(h_all');
 
+   demodulator_input=received_symbol./conj(h_all');
    is_value=demodulator_input(use_pilot_subcarriers(1));
    cpec=pilot_symbol./is_value;
    CPECS(i10+1)=cpec;
@@ -89,8 +89,10 @@ for i1=[1:known_pos-1,known_pos+1:Ns]
    b1=length(ix)*no_bits_per_symb*i10+1;
    b2=b1+length(ix)*no_bits_per_symb-1;
    hard_bits(b1:b2)=temp(:);
-
    i10=i10+1;
+   
+  
+
 end;
 
 power=power/Ns;
