@@ -142,8 +142,22 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
  
 
     stream_args.cpu_format="sc16";
-    if (use_8bits)
+    if (use_8bits) {
+
+       double max_value=0.0;
+       double new_value;
+       for (uint32_t i2=0;i2<total_num_samps;i2++){ 
+	  new_value=abs(buffer[i2]);
+	  if (new_value>max_value) {
+	      max_value=new_value;
+	  };
+       };
+
       stream_args.otw_format="sc8";
+      std::stringstream temp_ss;
+      temp_ss << max_value/32768.0*0.5;
+      //stream_args.args["peak"]=temp_ss.str();
+    }
     else
       stream_args.otw_format="sc16";
 

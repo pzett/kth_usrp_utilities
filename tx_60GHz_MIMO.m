@@ -1,8 +1,8 @@
-function tx_60GHz_MIMO( Nsamples, X, gain, tx_rate, LOoffset, low_res)
+function tx_60GHz_MIMO( Nsamples, X, gain, tx_rate, low_res)
 
 %
 % 
-% function tx_60GHz( Nsamples, X, gain, tx_rate, LOoffset, low_res)
+% function tx_60GHz( Nsamples, X, gain, tx_rate, low_res)
 %
 % General description:
 % Zero-pads the signal X to length Nsamples and then loops
@@ -19,7 +19,7 @@ function tx_60GHz_MIMO( Nsamples, X, gain, tx_rate, LOoffset, low_res)
 
 
 filename='data_to_usrp.dat';
-
+LOoffset=0;
 
 if ~exist('tx_rate')
     tx_rate=25e6;

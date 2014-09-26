@@ -193,7 +193,7 @@ for i1=1:Ns
        tx(:,i10+1)=burst(ix); 
        i10=i10+1;
     end;
-
+    
     temp=ifft(burst,Nfft);
     ixx=Np+(1:Nfft)+(Np+Nfft)*(re_order(i1)-1);
     waveform(ixx)=temp;
