@@ -55,7 +55,7 @@ for i1=1:size(X,2)
    temp(i1*2-1)=real(X(1,i1));
    temp(i1*2-0)=-imag(X(1,i1));
 end;
-
+ 
 
 fid=fopen(filename,'w');
 fwrite(fid,temp,'int16');
