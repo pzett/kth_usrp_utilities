@@ -81,7 +81,6 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     po::store(po::parse_command_line(argc, argv, desc), vm);
     po::notify(vm);
 
-
     dev_addr["addr0"]=dev_addr_str;
     dev = uhd::usrp::multi_usrp::make(dev_addr);
 
@@ -92,7 +91,6 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     dev->set_rx_rate(rx_rate);
     uhd::tune_request_t trq(freq,LOoffset); 
     tr=dev->set_rx_freq(trq);
-
 
     uhd::usrp::dboard_iface::sptr db_iface;
     db_iface=dev->get_tx_dboard_iface(0);
@@ -196,16 +194,13 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
                                                 // buffer
 
 
-    dev->set_time_now(uhd::time_spec_t(0.0));
-    std::cout << boost::format("Setting device timestamp to 0...") << std::endl;
+    //    dev->set_time_now(uhd::time_spec_t(0.0));
+    //std::cout << boost::format("Setting device timestamp to 0...") << std::endl;
 
     uhd::stream_cmd_t stream_cmd(uhd::stream_cmd_t::STREAM_MODE_NUM_SAMPS_AND_DONE);    
     
-    stream_cmd.num_samps = buffer_size;
+    stream_cmd.num_samps = total_num_samps; //buffer_size;
     stream_cmd.stream_now = true;
-    stream_cmd.stream_mode=uhd::stream_cmd_t::STREAM_MODE_START_CONTINUOUS;
-
-    //stream_cmd.time_spec = uhd::time_spec_t(seconds_in_future);
     dev->issue_stream_cmd(stream_cmd);
 
 
@@ -221,20 +216,21 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
 	 num_rx_samps_latest_call= 
 	   rx_stream->recv(&buff_short[0],buffer_size, md, 3.0);
        };
-       if (num_rx_samps_latest_call!=buffer_size)  {
-	 std::cerr << "I expect the buffer size to be always the same!";
-         exit(1); 
-       };
+
+       stream_cmd.stream_mode=uhd::stream_cmd_t::STREAM_MODE_STOP_CONTINUOUS;
+       dev->issue_stream_cmd(stream_cmd);
+
 
        /* Process the just received buffer */
        int i1=2*num_rx_samps;
        int i2=0;
-       while ((i1<(int) (2*total_num_samps)) && (i2<2*((int) buffer_size))) 
+       while ((i1<(int) (2*total_num_samps)) && (i2<2*((int) num_rx_samps_latest_call ))) 
        {	  
 	  storage_short[i1]=buff_short[i2];
 	  i1++; i2++;
        };
 	 
+
        num_rx_samps=num_rx_samps+num_rx_samps_latest_call;
     };
 

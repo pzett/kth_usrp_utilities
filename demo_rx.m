@@ -1,6 +1,6 @@
 
 usrp_addr='192.168.20.2';
-use_50Msps=1;
+use_50Msps=0;
 
 
 if (use_50Msps)
@@ -22,13 +22,12 @@ X=rx_60GHz(10000,0,gain_rx,rate,scaling_8bits);
 
 [ start_pos, f_offset] = synchronize_OFDM1(X(1:5000), parameters,1,1, 1);
 
-f_offset
-
 X=X.*exp(-j*2*pi*f_offset*(1:length(X)));
 
 while (1)
 
   [hard_bits,h,rx,power,CPECS] = demod_OFDM3(X, parameters,start_pos+144);
+
   figure(1);
   plot(rx(:),'x');
   BER=1-mean(hard_bits'==bits_in);
@@ -44,10 +43,14 @@ while (1)
 
   X=rx_60GHz(10000,0,gain_rx,rate,scaling_8bits);  
   X=X.*exp(-j*2*pi*f_offset*(1:length(X))); 
+
+
   % Use the frequency offset that was computed the first time
   estimate_freq_offset = 0; % Do not estimate frequency offset 
 		            % in the following steps
   [ start_pos, f_offset_UNUSED] = synchronize_OFDM1(X(1:5000), parameters,estimate_freq_offset,1, 1); 
+
+
 end;
 
 

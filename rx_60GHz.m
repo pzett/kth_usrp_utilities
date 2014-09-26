@@ -1,7 +1,7 @@
 
-function X=rx_60GHz(Nsamples,ref_clk,gain,rx_rate,LOoffset,scaling_8bits,dev_addr)
+function X=rx_60GHz(Nsamples,ref_clk,gain,rx_rate,scaling_8bits,dev_addr)
 %
-%  function X=rx(Nsamples,ref_clk,pps_trigger,gain,rx_rate,LOoffset,scaling_8bits,dev_addr)
+%  function X=rx(Nsamples,ref_clk,pps_trigger,gain,rx_rate,scaling_8bits,dev_addr)
 % 
 %             X: Received complex samples.
 %      Nsamples: Number of samples to receive
@@ -10,7 +10,6 @@ function X=rx_60GHz(Nsamples,ref_clk,gain,rx_rate,LOoffset,scaling_8bits,dev_add
 %               Set it to zero if you don't know.
 %          gain: Receiver gain of analog section.
 %       rx_rate: Sample-rate. Default 25MHz.
-%       LOoffset: Offset between RF LO and actually used frequency.
 % scaling_8_bits: If ==0 then 16bits is used. If <>0 then 8 bits are used. 
 %	          If >0 then scaling_bits should then be set to the maximum 
 %                 amplitude expected divided by 2^15.
@@ -25,6 +24,7 @@ function X=rx_60GHz(Nsamples,ref_clk,gain,rx_rate,LOoffset,scaling_8bits,dev_add
 
 filename='d.dat';
 RF_freq=70e6;
+LOoffset=0; 
 
 if ~exist('rx_rate')
     rx_rate=25e6;
