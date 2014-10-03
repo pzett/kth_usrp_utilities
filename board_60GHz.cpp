@@ -65,18 +65,6 @@ board_60GHz_base::board_60GHz_base(uhd::usrp::dboard_iface::sptr db_iface,
   m_db_iface->set_gpio_out(m_unit,0,1 << m_clk_hmc); 
 
 
-  /*  
-  while (1) {
-
-  m_db_iface->set_gpio_out(m_unit,1 << m_enable_hmc,1 << m_enable_hmc ); 
-  usleep(1e3);
-  m_db_iface->set_gpio_out(m_unit,0,1 << m_enable_hmc ); 
-  usleep(1e3);
-  };
-  */
-  
-
-
 
   // Let reset go high
   m_db_iface->set_gpio_out(m_unit,1<< m_reset_hmc,1 << m_reset_hmc); 
@@ -101,12 +89,7 @@ void board_60GHz_base::write_row(uint16_t row_num, uint32_t value) {
   for (int i1=0;i1<6;i1++)
     row_num_brs=row_num_brs | (((row_num>>i1) & 1) << (5-i1));
 
-  //value_brs=0;
-  //for (int i1=0;i1<8;i1++)
-  //  value_brs=value_brs | (((value >>i1) & 1) << (7-i1));
 
-  //total_write=(1<<14) | (0<<15) | (1<<16) | (1<<17); // R/W +chip address
-  //total_write=(1<<14) | (1<<15) | (1<<16) | (1<<17); // R/W +chip address
   total_write=(1<<14) | (m_chip_addr<<15);
 
   total_write=total_write | value;
@@ -172,13 +155,6 @@ uint16_t board_60GHz_base::read_row(uint16_t row_num) {
   };
 
   
-  //value_brs=0;
-  //for (int i1=0;i1<8;i1++)
-  //  value_brs=value_brs | (((value >>i1) & 1) << (7-i1));
-
-
-  //total_write=(0<<14) | (0<<15) | (1<<16) | (1<<17); // R/W +chip address
-  //total_write=(0<<14) | (1<<15) | (1<<16) | (1<<17); // R/W +chip address
   total_write=(0<<14) | (m_chip_addr<<15);
   total_write=total_write | value;
   total_write=total_write | (row_num << 8);
@@ -338,6 +314,8 @@ void board_60GHz_TX::set_gain(uint16_t tx_gain) {
 };
 
 
+
+
 board_60GHz_RX::board_60GHz_RX(uhd::usrp::dboard_iface::sptr db_iface) :
 board_60GHz_base(db_iface,uhd::usrp::dboard_iface::UNIT_RX,
 				   ENABLE_HMC, DATA_IN_HMC, CLK_HMC,
@@ -379,6 +357,9 @@ board_60GHz_base(db_iface,uhd::usrp::dboard_iface::UNIT_RX,
     write_row(9,0); // Normal operation
     write_row(10,240); // 240+DIVRATIO<4>
     write_row(11,16*(1+2+4)+2*3+1); // 16*DIVRATIO<3:0>+2*BAND+1
+
+
+
     write_row(12,95); // Normal operation
     write_row(13,128); // Normal operation
     write_row(14,118); // Normal operation
@@ -415,3 +396,81 @@ void board_60GHz_RX::set_gain(uint16_t rx_gain) {
 
 };
 
+
+void board_60GHz_RX::set_freq(double freq) {
+
+    double freq_actual=freq;
+
+    if (freq<57e9) {
+      freq_actual=57e9;
+    };
+    if (freq>64e9) {
+      freq_actual=64e9;
+    };
+
+
+    uint16_t DIVRATIO=round((freq_actual-57e9)/0.5e9)+1;
+    freq_actual=57e9+0.5e9*(DIVRATIO-1);
+    double extra_offset=0.5e9; // Added to make it work. Different from datasheet!
+    uint16_t BAND=floor((freq_actual+extra_offset-57e9)/1e9);
+
+
+    /*
+    std::cout << "DIVRATIO<3:0>=" <<  (DIVRATIO & 15) << "\n";
+    std::cout << "BAND=" <<  BAND << "\n";
+    std::cout << "240+DIVRATIO<4>=" << 240+(DIVRATIO>>4) << "\n" ;
+    std::cout << "16*DIVRATIO<3:0>+2*BAND+1=" << 16*(DIVRATIO & 15)+2*BAND+1 << "\n";*/
+
+    write_row(10,240+(DIVRATIO>>4)); // 240+DIVRATIO<4>
+    write_row(11,16*(DIVRATIO & 15)+2*BAND+1); // 16*DIVRATIO<3:0>+2*BAND+1
+
+    std::cout << "60GHz RX board: Target RF Freq=" << freq/1e9 << "GHz \n";
+    std::cout << "60GHz RX board: Actual RF Freq=" << freq_actual/1e9 << "GHz \n";
+
+
+    std::cout << "Waiting for PLL lock \n";
+    int lock=read_row(15)>> 6;
+    while (lock!=1) {
+      std::cout << ".";
+      usleep(1e6);
+      lock=read_row(15)>> 6;
+    };
+    std::cout << "PLL has locked! \n";
+
+}
+
+void board_60GHz_TX::set_freq(double freq) {
+
+    double freq_actual=freq;
+
+    if (freq<57e9) {
+      freq_actual=57e9;
+    };
+    if (freq>64e9) {
+      freq_actual=64e9;
+    };
+
+
+    uint16_t DIVRATIO=round((freq_actual-57e9)/0.5e9)+1;
+    freq_actual=57e9+0.5e9*(DIVRATIO-1);
+    double extra_offset=0.5e9; // Added to make it work. Different from datasheet!
+    uint16_t BAND=floor((freq_actual+extra_offset-57e9)/1e9);
+
+
+    write_row(10,240+(DIVRATIO>>4)); // 240+DIVRATIO<4>
+    write_row(11,16*(DIVRATIO & 15)+2*BAND+1); // 16*DIVRATIO<3:0>+2*BAND+1
+
+    std::cout << "60GHz TX board: Target RF Freq=" << freq/1e9 << "GHz \n";
+    std::cout << "60GHz TX board: Actual RF Freq=" << freq_actual/1e9 << "GHz \n";
+
+
+    std::cout << "Waiting for PLL lock \n";
+    int lock=read_row(15)>> 6;
+    while (lock!=1) {
+      std::cout << ".";
+      usleep(1e6);
+      lock=read_row(15)>> 6;
+    };
+    std::cout << "PLL has locked! \n";
+
+}

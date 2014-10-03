@@ -43,7 +43,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     std::string args;
     double seconds_in_future;
     size_t total_num_samps;
-    double tx_rate, freq, LOoffset;
+    double tx_rate, freq, rf_freq, LOoffset;
     float gain;
     bool forever, use_8bits;
     bool use_external_10MHz; 
@@ -62,7 +62,8 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
         ("secs", po::value<double>(&seconds_in_future)->default_value(3), "number of seconds in the future to transmit")
         ("nsamp", po::value<size_t>(&total_num_samps)->default_value(1000), "total number of samples to transmit")
         ("txrate", po::value<double>(&tx_rate)->default_value(100e6/4), "rate of outgoing samples")
-        ("freq", po::value<double>(&freq)->default_value(70e6), "rf center frequency in Hz")
+      ("freq", po::value<double>(&freq)->default_value(70e6), "center frequency at input of basic daughterboard")
+        ("rf_freq", po::value<double>(&rf_freq)->default_value(60e9), "rf center frequency in Hz of 60GHz RX board")
         ("LOoffset", po::value<double>(&LOoffset)->default_value(0), "Offset between main LO and center frequency")
         ("forever",po::value<bool>(&forever)->default_value(true), "run indefinetly")
         ("10MHz",po::value<bool>(&use_external_10MHz)->default_value(false), 
@@ -130,7 +131,11 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     db_iface=dev->get_tx_dboard_iface(0);
 
     board_60GHz_TX  my_60GHz_TX(db_iface);  //60GHz 
-    my_60GHz_TX.set_gain(gain); // 60GHz
+    my_60GHz_TX.set_gain(gain); 
+    if (rf_freq!=60e9) {
+      my_60GHz_TX.set_freq(rf_freq);    // 60GHz
+    };
+
 
     uhd::tune_result_t tr;
     uhd::tune_request_t trq(freq,LOoffset); //std::min(tx_rate,10e6));

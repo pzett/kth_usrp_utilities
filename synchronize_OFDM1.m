@@ -23,7 +23,7 @@ if (estimate_freq_offset)
             Criterion(i1)=p;
             FrequencyIx(i1)=fi;
         end;
-    else % ???m==2, i.e. MIMO???
+    else 
         for i1=1:Nlags
             de_spread=waveform(:,i1-1+(1:length(train))).*train_big;
             [p,fi]=max(sum(abs(fft(de_spread',Nfft_sync)').^2));

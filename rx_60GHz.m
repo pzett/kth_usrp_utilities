@@ -1,11 +1,11 @@
 
-function X=rx_60GHz(Nsamples,ref_clk,gain,rx_rate,scaling_8bits,dev_addr)
+function X=rx_60GHz(RF_freq,Nsamples,ref_clk,gain,rx_rate,scaling_8bits,dev_addr)
 %
 %  function X=rx(Nsamples,ref_clk,pps_trigger,gain,rx_rate,scaling_8bits,dev_addr)
 % 
 %             X: Received complex samples.
 %      Nsamples: Number of samples to receive
-%       RF_freq: Center frequency.
+%       RF_freq: Center frequency of 60GHz RX board.
 %       ref_clk: If =1 then the receiver is locked to the external 10MHz REFCLOCK. 
 %               Set it to zero if you don't know.
 %          gain: Receiver gain of analog section.
@@ -23,7 +23,7 @@ function X=rx_60GHz(Nsamples,ref_clk,gain,rx_rate,scaling_8bits,dev_addr)
 
 
 filename='d.dat';
-RF_freq=70e6;
+BasicDB_freq=70e6;
 LOoffset=0; 
 
 if ~exist('rx_rate')
@@ -41,7 +41,8 @@ end;
 
 
 cmd_str=['sudo ./rx_60GHz --nsamp=',num2str(Nsamples),' --filename=',filename];
-cmd_str=[cmd_str,' --freq=',num2str(RF_freq),' --rxrate=',num2str(rx_rate)];
+cmd_str=[cmd_str,' --freq=',num2str(BasicDB_freq),' --rxrate=',num2str(rx_rate)];
+cmd_str=[cmd_str,' --rf_freq=',num2str(RF_freq)];
 cmd_str=[cmd_str,' --gain=',num2str(gain)];
 cmd_str=[cmd_str,' --LOoffset=',num2str(LOoffset)];
 cmd_str=[cmd_str,' --dev_addr=',dev_addr];

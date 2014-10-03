@@ -11,14 +11,14 @@ else
   scaling_8bits=0;
 end;
 
-
+rf_freq=60e9;
 gain_rx=14;
 rand('twister',0);
 bits_in=rand(1,1888)>0.5;
 %load bits_in
 [waveform, parameters]=modem_OFDM3(60,4,1,1,1,bits_in);
 
-X=rx_60GHz(10000,0,gain_rx,rate,scaling_8bits);
+X=rx_60GHz(rf_freq,10000,0,gain_rx,rate,scaling_8bits);
 
 [ start_pos, f_offset] = synchronize_OFDM1(X(1:5000), parameters,1,1, 1);
 
@@ -40,8 +40,9 @@ while (1)
   plot(abs(X))
   title('60GHz transmission','FontSize',48);
   pause(1);
-
-  X=rx_60GHz(10000,0,gain_rx,rate,scaling_8bits);  
+		
+  
+  X=rx_60GHz(rf_freq,10000,0,gain_rx,rate,scaling_8bits);  
   X=X.*exp(-j*2*pi*f_offset*(1:length(X))); 
 
 

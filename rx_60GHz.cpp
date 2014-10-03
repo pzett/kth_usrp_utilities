@@ -46,7 +46,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     //variables to be set by po
     //double seconds_in_future=0.01;
     size_t total_num_samps;
-    double rx_rate, freq, LOoffset;
+    double rx_rate, freq, LOoffset, rf_freq;
     bool use_external_10MHz;
     double scaling_8bits;
     std::string filename;
@@ -65,7 +65,8 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
         ("help", "help message")
         ("nsamps", po::value<size_t>(&total_num_samps)->default_value(1000), "total number of samples to receive")
         ("rxrate", po::value<double>(&rx_rate)->default_value(100e6/4), "rate of incoming samples")
-        ("freq", po::value<double>(&freq)->default_value(70e6), "rf center frequency in Hz")
+        ("rf_freq", po::value<double>(&rf_freq)->default_value(60e9), "rf center frequency in Hz of 60GHz RX board")
+        ("freq", po::value<double>(&freq)->default_value(60e9), "center frequency at input of basic daughterboard")
         ("LOoffset", po::value<double>(&LOoffset)->default_value(0), "Offset between main LO and center frequency")
         ("10MHz",po::value<bool>(&use_external_10MHz)->default_value(false), "external 10MHz on 'REF CLOCK' connector (true=1=yes)")
       //  ("PPS",po::value<bool>(&trigger_with_pps)->default_value(false), "trigger reception with 'PPS IN' connector (true=1=yes)")
@@ -97,6 +98,9 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
        
     board_60GHz_RX my_60GHz_RX(db_iface);    // 60GHz
     my_60GHz_RX.set_gain(gain);    // 60GHz
+    if (rf_freq!=60e9) {
+      my_60GHz_RX.set_freq(rf_freq);    // 60GHz
+    };
 
 
     uhd::clock_config_t my_clock_config; 
