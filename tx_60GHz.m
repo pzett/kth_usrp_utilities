@@ -1,14 +1,17 @@
-function tx_60GHz( Nsamples, X, ref_clk , gain, tx_rate, low_res, dev_addr)
+function tx_60GHz(RF_freq, Nsamples, X, ref_clk , gain, tx_rate, low_res, dev_addr)
+
+
 
 %
 % 
-% function tx_60GHz( Nsamples, X, ref_clk, gain, tx_rate, low_res, dev_addr)
+% function tx_60GHz( RF_freq, Nsamples, X, ref_clk, gain, tx_rate, low_res, dev_addr)
 %
 % General description:
 % Zero-pads the signal X to length Nsamples and then loops
 % the signal until interrupted by the user.
 % 
 %
+%  RF_freq: Center frequency of 60GHz RX board.
 % Nsamples: Repeat pattern length.
 %        X: Transmitted signal. Can be double but is intepreted as short.
 %  ref_clk: If =1 then the transmitter is locked to REF CLOCK.
@@ -22,7 +25,7 @@ function tx_60GHz( Nsamples, X, ref_clk , gain, tx_rate, low_res, dev_addr)
 
 filename='data_to_usrp.dat';
 LOoffset=0;
-
+BasicDB_freq=70e6;
 
 if ~exist('tx_rate')
     tx_rate=25e6;
@@ -34,7 +37,6 @@ if ~exist('dev_addr')
     dev_addr='192.168.10.2';
 end;
 
-RF_freq=70e6;
 
 if (size(X,2)<size(X,1))
     X=conj(X');
@@ -65,7 +67,8 @@ fclose(fid);
 cmd_str=['sudo ./tx_60GHz '];
 
 cmd_str=[cmd_str,' --nsamp ',num2str(Nsamples),' --filename ',filename];
-cmd_str=[cmd_str,' --freq ',num2str(RF_freq),' --txrate ',num2str(tx_rate),' '];
+cmd_str=[cmd_str,' --freq=',num2str(BasicDB_freq),' --txrate=',num2str(tx_rate)];
+cmd_str=[cmd_str,' --rf_freq=',num2str(RF_freq)];
 cmd_str=[cmd_str,' --gain ',num2str(gain),' '];
 cmd_str=[cmd_str,' --forever true '];
 cmd_str=[cmd_str,' --LOoffset=',num2str(LOoffset)];

@@ -1,8 +1,9 @@
 
 function X=rx_60GHz(RF_freq,Nsamples,ref_clk,gain,rx_rate,scaling_8bits,dev_addr)
 %
-%  function X=rx(Nsamples,ref_clk,pps_trigger,gain,rx_rate,scaling_8bits,dev_addr)
-% 
+%  function X=rx(RF_freq, Nsamples,ref_clk,pps_trigger,gain,rx_rate,scaling_8bits,dev_addr)
+%
+%       RF_freq: Center frequency of 60GHz RX board. 
 %             X: Received complex samples.
 %      Nsamples: Number of samples to receive
 %       RF_freq: Center frequency of 60GHz RX board.
