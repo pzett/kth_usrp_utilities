@@ -10,7 +10,7 @@ else
   rate=25e6;
   scaling_8bits=0;
 end;
-
+ 
 rf_freq=60e9;
 gain_rx=14;
 rand('twister',0);
