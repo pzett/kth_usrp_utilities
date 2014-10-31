@@ -18,5 +18,5 @@ else
 end;
 
 
-tx_60GHz(rf_freq, 3000, waveform*5000/sqrt(parameters.power),0, 10, ...
+tx_60GHz(rf_freq, 3000, waveform*1000/sqrt(parameters.power),0, 10, ...
 rate, low_res, usrp_addr);

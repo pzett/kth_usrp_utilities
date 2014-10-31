@@ -1,12 +1,10 @@
-function [waveform, parameters]=modem_OFDM4(Nsymbols,modulation_ix,known_pos,use_pilot_subcarriers,prepend_sync_seq,bits_in,re_order,Nfft,Np,ix_all)
-
+function [waveform, parameters]=modem_OFDM4(Nsymbols,modulation_ix,known_pos,use_pilot_subcarriers,prepend_sync_seq,bits_in,re_order)
 %
 %
-%function [waveform, parameters]=modem_OFDM4(Nsymbols,modulation_ix,known_pos,use_pilot_subcarriers,prepend_sync_seq,bits_in,re_order,Nfft,ix_all)
+% function [waveform, parameters]=modem_OFDM4(Nsymbols,known_pos,use_pilot_subcarriers,prepend_sync_seq,bits_in,re_order)
 %
 % This is a OFDM modulation intended for use with 25MHz or 50MHz sample-frequency (Fs),
-% the carrier spacing is either 25MHz/Nfft or 50MHz/Nfft, respectively.
-% The parameter Nfft does not necessarily have to be a power of two.
+% the carrier spacing is either 625kHz or 1250kHz, respectively.
 %
 % The function creates a burst of Nsymbols OFDM symbols. The OFDM is based
 % on an FFT of length Nfft=40. The time domain signal is defined according
@@ -18,11 +16,12 @@ function [waveform, parameters]=modem_OFDM4(Nsymbols,modulation_ix,known_pos,use
 %
 % waveform(n)=waveform(n+Nfft), 1<=n<=Np,
 %
-% where Np is length of the cyclic prefix. Subcarrier indecies ix_all
-% are modulated while the remaining are nulled. 
-% The frequencies of the subcarriers are Fs*ix_all/Nfft-Fs*(ix_all>Nfft/2),
-% where the second term is due to folding at Fs. Only the subcarriers
-% in ix_all are actually used.
+% where Np is length of the cyclic prefix. Subcarrier indecies 1...9 and
+% 33..40 are modulated while the remaining are nulled. Thanks to the
+% folding at Fs, this correspond to carrier frequencies 0 to
+% 5MHz and -5MHz to -0.625MHz at 25MHz sample-rate.
+% With 50MHz sample-rate the corresponding number are 0 to 10MHz and
+% -
 %
 % One of the OFDM symbols is entirely known at the receiver. This is symbol
 % as index known_pos if the symbold are numbered 1...Ns. This symbols uses
@@ -32,7 +31,7 @@ function [waveform, parameters]=modem_OFDM4(Nsymbols,modulation_ix,known_pos,use
 % phase-noise between transmitter branches, the use_pilot_subcarriers parameter has been 
 % introduced in a rather involved way.
 % 
-% For SISO systems, use_pilot_subcarriers points at the subcarriers in ix_all, which contains 
+% For SISO systems, use_pilot_subcarriers points at the subcarrier [1,..9,33..40], which contains 
 % a single pilot symbol 1+j, which is used for phase-derotation in the receiver.
 % For MIMO systems, use_pilot_subcarriers is a vector. The first element use_pilot_subcarriers(1) is used
 % to point out a pilot symbol 1+j, which is used for phase-derotation as in the SISO case.
@@ -44,8 +43,7 @@ function [waveform, parameters]=modem_OFDM4(Nsymbols,modulation_ix,known_pos,use
 %
 % If prepend_sync_seq=1 then a synchronization sequence is prepended to the
 % waveform. This sequence facilitates synchronization in the time and
-% frequency domain. If  prepend_sync_seq=2 then the prepended sequence
-% is muted. If prepend_sync_seq=0 then no synchronization sequence is prepended.
+% frequency domain.
 %
 % The struct parameters should provide all information needed for
 % demodulation.
@@ -60,8 +58,6 @@ function [waveform, parameters]=modem_OFDM4(Nsymbols,modulation_ix,known_pos,use
 % the OFDM symbols. If re_order(x)=y then the x:th symbol is transmitted on
 % the nominal location of the y:th symbol. Note that y can be larger than Nsymbols. 
 % This is useful for implementing e.g. antenna hopping. 
-%
-% The parameter Np is the le
 
 if ~exist('re_order')
    re_order=1:Nsymbols;
@@ -78,6 +74,8 @@ end;
 
 
 % constants
+Nfft=40;
+Np=4;
 gap=3;
 train=[1,1,-1,1,1,1,1,-1,1,1,1,-1,1,1,1,-1,-1,-1,1,1,1,1,...
         -1,-1,-1,-1,-1,1,-1,-1,1,-1,1,1,-1,1,1,1,-1,1,1,1,1,-1,-1,-1,...
@@ -90,6 +88,7 @@ train=[1,1,-1,1,1,1,1,-1,1,1,1,-1,1,1,1,-1,-1,-1,1,1,1,1,...
 %train = train * j;
 
 
+ix_all= [1:9,33:40];
 
 ix=[];
 ix_sub=[];
@@ -122,15 +121,13 @@ b2s64=[0 1 3 2 7 6 4 5 8 9 11 10 15 14 12 13 24 25 27 26 31 30 28 29 16 17 19 18
     23 22 20 21 56 57 59 58 63 62 60 61 48 49 51 50 55 54 52 53 32 33 35 34 39 38 36 37 40 41 43 42 47 46 44 45]+1;
 
 pilot_symbol=1+j;
-known_symnol=zeros(Nfft,1);
-known_symbolt=[1-1i  1+1i  1+1i -1+1i -1-1i -1+1i -1-1i  1+1i  1+1i  1+1i -1-1i -1-1i 1-1i ...
-		1+1i  -1-1i -1+1i  1-1i  -1+1i  1-1i  1-1i 1-1i  -1+1i ...
--1+1i -1-1i -1+1i -1+1i -1+1i  1+1i 1+1i -1+1i ...
-1+1i -1+1i -1-1i   1 - 1i   1 + 1i  -1 + 1i  -1 - 1i  -1 + 1i  -1+1i   1 + 1i];
-
-known_symbol=known_symbolt(1:Nfft);
-
+known_symnol=zeros(Nfft,2);
+known_symbol(1:9,1)=[  1 + 1i ,1 - 1i,-1 + 1i,-1 + 1i,-1 + 1i ,1 + 1i ,-1 + 1i ,-1 + 1i,1+i];
+known_symbol(33:40,1)=[1 - 1i   1 - 1i  -1 - 1i   1 - 1i  -1 + 1i   1 - 1i  -1 - 1i  -1 + 1i];
+known_symbol(1:9,2)=[1 - 1i -1 + 1i -1 - 1i,1 + 1i   1 + 1i  -1 + 1i   1 - 1i   1 - 1i   1 - 1i];
+known_symbol(33:40,2)=[-1 + 1i   1 + 1i  -1 + 1i  -1 + 1i  -1 + 1i  -1 + 1i  -1 - 1i  -1 - 1i];
 scaling_of_known=1/sqrt(2);
+
 switch (modulation_ix)
     case 4
         Const=Constellation4;
@@ -174,11 +171,9 @@ bits_in=bits_in(:);
 Ns=Nsymbols;
 no_bits_per_symb=round(log2(length(Const)));
 
-number_of_bits_needed=(Ns-1)*length(ix)*no_bits_per_symb
-tx=zeros(length(ix),Ns-1);
-if (length(bits_in)<number_of_bits_needed)
-  bits_in=[bits_in;(rand(number_of_bits_needed-length(bits_in),1)>0.5)];
-end;
+number_of_bits_needed=(Ns-length(known_pos))*length(ix)*no_bits_per_symb;
+tx=zeros(length(ix),Ns-length(known_pos));
+bits_in=[bits_in;(rand(number_of_bits_needed-length(bits_in),1)>0.5)];
 
 parameters.number_of_bits_needed=number_of_bits_needed;
 
@@ -187,10 +182,16 @@ waveform=zeros(1,max(re_order)*(Nfft+Np));
 burst=zeros(length(ix_all),1);
 i10=0;
 power=0;
+i3=1;
 
 for i1=1:Ns
-    if (i1==known_pos)
-        burst=scaling_of_known*known_symbol;
+    if ~isempty(find(i1==known_pos))
+       burst=scaling_of_known*known_symbol(:,i3);
+       i3=i3+1;
+       if (i3>size(known_symbol,2))
+	 i3=1;
+       end;
+       burst(use_pilot_subcarriers_sub(2:end));
     else
        for i2=1:length(ix)
           ixx=(i2-1)*no_bits_per_symb+(1:no_bits_per_symb)+i10*length(ix)*no_bits_per_symb;
@@ -220,7 +221,6 @@ end;
 if (prepend_sync_seq==2)
     waveform=[zeros(size(train)),zeros(1,gap),waveform];
 end;
-
 
 
 end
