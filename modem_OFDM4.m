@@ -1,4 +1,4 @@
-function [waveform, parameters]=modem_OFDM4(Nsymbols,modulation_ix,known_pos,use_pilot_subcarriers,prepend_sync_seq,bits_in,re_order)
+function [waveform, parameters]=modem_OFDM4(Nsymbols,modulation_ix,known_pos,interf_pos,use_pilot_subcarriers,prepend_sync_seq,bits_in,re_order)
 %
 %
 % function [waveform, parameters]=modem_OFDM4(Nsymbols,known_pos,use_pilot_subcarriers,prepend_sync_seq,bits_in,re_order)
@@ -158,6 +158,7 @@ parameters.constellation=Const;
 parameters.scaling_of_known=scaling_of_known;
 parameters.known_symbol=known_symbol;
 parameters.known_pos=known_pos;
+parameters.known_pos=interf_pos;
 parameters.prepend_sync_seq=prepend_sync_seq;
 
 parameters.b2s=b2s; %% Bit to symbol mapping

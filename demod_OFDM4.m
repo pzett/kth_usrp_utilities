@@ -20,6 +20,7 @@ Ns=parameters.Nsymbols;
 ix_all=parameters.ix_all;
 known_symbol=parameters.known_symbol;
 known_pos=parameters.known_pos;
+interf_pos=parameters.interf_pos;
 scaling_of_known=parameters.scaling_of_known;
 ix=parameters.ix;
 Const=parameters.constellation;
@@ -36,6 +37,29 @@ if (size(waveform,1)==1)
 end;
 no_bits_per_symb=round(log2(length(Const)));
 
+
+% Estimate interfering channel
+Hi=zeros(length(ix_all),length(known_pos));
+
+for i1=1:length(known_pos)
+  est_pos=start_pos+(re_order(interf_pos(i1))-1)*(Nfft+Np);
+  received_symbol=fft(waveform(est_pos+(0:(Nfft-1))));
+  power=mean(abs(waveform(est_pos+(0:(Nfft-1)))).^2);
+  temp=conj(received_symbol');
+  h_all=temp./(conj(known_symbol(:,i1)')*scaling_of_known+1e-12);
+  h=h_all(ix_all);
+  Hi(:,i1)=h;
+end;
+
+ha=mean(abs(H),2);
+ph0=exp(-j*angle(mean(H./repmat(H(:,1),1,length(known_pos)))));
+Hi=Hi.*repmat(ph0,length(ix_all),1);
+hp=angle(mean(H,2));
+hi=ha.*exp(j*hp);
+h_all_i=zeros(size(h_all));
+h_all_i(ix_all)=hi;
+
+
 % Estimate the channel in the frequency domain
 H=zeros(length(ix_all),length(known_pos));
 
@@ -49,7 +73,6 @@ for i1=1:length(known_pos)
   H(:,i1)=h;
 end;
 
-
 ha=mean(abs(H),2);
 ph0=exp(-j*angle(mean(H./repmat(H(:,1),1,length(known_pos)))));
 H=H.*repmat(ph0,length(ix_all),1);
@@ -57,6 +80,9 @@ hp=angle(mean(H,2));
 h=ha.*exp(j*hp);
 h_all=zeros(size(h_all));
 h_all(ix_all)=h;
+
+
+
 
 if ~parameters.use_pilot_subcarriers
     ix=ix_all;

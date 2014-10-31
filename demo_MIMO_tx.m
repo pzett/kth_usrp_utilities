@@ -9,10 +9,12 @@ rand('twister',0);
 bits_in1=rand(1,1740)>0.5;
 bits_in2=rand(1,1740)>0.5;
 Ns=60;
-[waveform1, parameters1]=modem_OFDM4(Ns,4,[1,2],[1,2],1,bits_in1,[1,2,5:(Ns+2)]);
-[waveform2, parameters2]=modem_OFDM4(Ns,4,[3,4],[2,1],2,bits_in2,[3:(Ns+2)]);
+[waveform1, parameters1]=modem_OFDM4(Ns,4,[1,2],[3,4],[1,2],1,bits_in1,[1,2,5:(Ns+2)]);
+[waveform2, parameters2]=modem_OFDM4(Ns,4,[3,4],[1,2],[2,1],2,bits_in2,[3:(Ns+2)]);
 
-
+X=zeros(2,length(waveform1));
+X(1,:)= waveform1*5000/sqrt(parameters1.power);
+X(2,:)= waveform2*5000/sqrt(parameters2.power);
 
 if (use_50Msps)
   rate=50e6;
@@ -23,5 +25,4 @@ else
 end;
 
 
-tx_60GHz(rf_freq, 3000, waveform1*5000/sqrt(parameters1.power),0, 10, ...
-rate, low_res, usrp_addr);
+tx_60GHz_MIMO(3000, X, 10, rate, low_res)

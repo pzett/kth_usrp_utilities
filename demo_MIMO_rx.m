@@ -18,8 +18,8 @@ rand('twister',0);
 bits_in1=rand(1,1740)>0.5;
 bits_in2=rand(1,1740)>0.5;
 Ns=60;
-[waveform1, parameters1]=modem_OFDM4(Ns,4,[1,2],[1,2],1,bits_in1,[1,2,5:(Ns+2)]);
-[waveform2, parameters2]=modem_OFDM4(Ns,4,[3,4],[2,1],2,bits_in2,[3:(Ns+2)]);
+[waveform1, parameters1]=modem_OFDM4(Ns,4,[1,2],[3,4],[1,2],1,bits_in1,[1,2,5:(Ns+2)]);
+[waveform2, parameters2]=modem_OFDM4(Ns,4,[3,4],[1,2],[2,1],2,bits_in2,[3:(Ns+2)]);
 
 X=rx_60GHz_MIMO(10000,gain_rx,rate,scaling_8bits)
 [ start_pos, f_offset] = synchronize_OFDM1(X(1,1:5000), parameters1,1,1, 1);
