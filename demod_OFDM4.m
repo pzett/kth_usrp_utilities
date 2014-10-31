@@ -49,6 +49,7 @@ for i1=1:length(known_pos)
   H(:,i1)=h;
 end;
 
+
 ha=mean(abs(H),2);
 ph0=exp(-j*angle(mean(H./repmat(H(:,1),1,length(known_pos)))));
 H=H.*repmat(ph0,length(ix_all),1);
@@ -56,7 +57,6 @@ hp=angle(mean(H,2));
 h=ha.*exp(j*hp);
 h_all=zeros(size(h_all));
 h_all(ix_all)=h;
-
 
 if ~parameters.use_pilot_subcarriers
     ix=ix_all;
