@@ -24,6 +24,7 @@
 #include <iostream>
 #include <complex>
 #include <cstdio>
+#include <fstream> 
 
 namespace po = boost::program_options;
 
@@ -40,9 +41,9 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     std::string args;
     double seconds_in_future;
     size_t total_num_samps;
-    double rate, freq, LOoffset;
+    double rate, freq;
     float gain;
-    std::string filename;
+    std::string filename_rx, filename_tx;
     uhd::tx_streamer::sptr tx_stream;
     uhd::rx_streamer::sptr rx_stream;
     uhd::device_addr_t dev_addr;
@@ -58,8 +59,8 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
         ("nsamps", po::value<size_t>(&total_num_samps)->default_value(1000), "total number of samples to transmit")
         ("rate", po::value<double>(&rate)->default_value(100e6/16), "rate of outgoing and ingoing samples")
         ("freq", po::value<double>(&freq)->default_value(0), "rf center frequency in Hz")
-        ("LOoffset", po::value<double>(&LOoffset)->default_value(0), "Offset between main LO and center frequency")
-        ("filename",po::value<std::string>(&filename)->default_value("data_to_usrp.dat"), "input filename")
+        ("filename_tx",po::value<std::string>(&filename_tx)->default_value("data_to_usrp.dat"), "tx filename")
+        ("filename_rx",po::value<std::string>(&filename_rx)->default_value("data_from_usrp.dat"), "rx filename")        
         ("gain",po::value<float>(&gain)->default_value(0), "gain of transmitter")        
     ;
 
@@ -89,9 +90,9 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     /* Create data to be transmitted */
     /* Read input from disc */
     FILE *fp = 0;
-    fp = fopen(filename.c_str(), "rb");    
+    fp = fopen(filename_tx.c_str(), "rb");    
     if (fp == 0){
-	perror(filename.c_str());
+	perror(filename_tx.c_str());
 	return 1;
     }
     int r=fread(buffer, sizeof(uint32_t),total_num_samps, fp);
@@ -115,38 +116,16 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     //dev->set_tx_bandwidth(36e6);
 
 
-    std::cout << "freq=" << freq << "\n";
-    std::cout << "LOoffset=" << LOoffset << "\n";
-    
 
     uhd::tune_result_t tr;
-    uhd::tune_request_t trq(freq,LOoffset); //std::min(tx_rate,10e6));
+    uhd::tune_request_t trq(freq,0); //std::min(tx_rate,10e6));
+    tr=dev->set_rx_freq(trq,0);
     tr=dev->set_tx_freq(trq,0);
     
-    bool is_xcvr2450=false;
+
     uhd::dict<std::string, std::string> tx_info;    
     tx_info=dev->get_usrp_tx_info(0);
 
-    if (tx_info.has_key("tx_subdev_name")) {
-      std::string str=tx_info.get("tx_subdev_name");
-      uint temp=str.find("XCVR2450");
-      if (temp<str.length()) {
-	is_xcvr2450=true;
-      };
-    };
-
-    if (is_xcvr2450) {
-      dev->set_tx_antenna("J2");
-      dev->set_rx_antenna("J1");
-      
-      //uhd::meta_range_t range=dev->get_tx_bandwidth_range();
-
-      if (abs(LOoffset)>=6e6) {
-	//dev->set_tx_bandwidth(28e6);
-	dev->set_tx_bandwidth(3.96e+07);
-      };
-      
-    };
 
     dev->set_tx_gain(gain);
     std::cout << tr.to_pp_string() << "\n";
@@ -199,6 +178,13 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
 
     //finished
     std::cout << std::endl << "Done!" << std::endl << std::endl;
+
+    // Save output to disc
+    std::ofstream s1(filename_rx.c_str(), std::ios::binary);   
+    s1.write((char *) buffer_rx,4*total_num_samps); 
+    s1.flush(); 
+    s1.close(); 
+
 
     return 0;
 }
