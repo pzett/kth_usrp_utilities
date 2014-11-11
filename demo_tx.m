@@ -1,5 +1,5 @@
 
-usrp_addr='192.168.10.2';
+usrp_addr='192.168.20.2';
 use_50Msps=0;
 
 
@@ -18,5 +18,5 @@ else
 end;
 
 
-tx_60GHz(rf_freq, 3000, waveform*1000/sqrt(parameters.power),0, 10, ...
+tx_60GHz(rf_freq, 3000, waveform*3000/sqrt(parameters.power),0, 13, ...
 rate, low_res, usrp_addr);

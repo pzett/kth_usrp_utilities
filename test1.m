@@ -33,12 +33,12 @@
 % Data-sheet - Measured = 7 - 13.3 = 6.3dB
 
 usrp_addr='192.168.20.2';
-gain_tx=0;
+gain_tx=0;  
 rf_freq=60e9;
 rate=25e6;
 low_res=0;
 
-X=5000*exp(j*2*pi*0*(0:9999));
+X=2500*exp(j*2*pi*0*(0:9999));
 %X=5000*exp(j*2*pi*0.1*(0:9999))+5000*exp(-j*2*pi*0.1*(0:9999));
 
 
@@ -182,6 +182,8 @@ tx_60GHz(rf_freq, length(X), X,0, gain_tx, rate, low_res, usrp_addr);
 %% Compare level at gain_tx=13. Base-band ampl. 30000/5000 = 
 %% gain_tx=13, gain increase 5.4dB
 %% Power input to circuit on I&Q branches -4.3dBm
+
+
 
 
 %% Experiment 21/10-2014

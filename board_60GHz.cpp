@@ -308,6 +308,9 @@ board_60GHz_base(db_iface,uhd::usrp::dboard_iface::UNIT_TX,
 void board_60GHz_TX::set_gain(uint16_t tx_gain) {
   if (tx_gain>13)
     tx_gain=13;
+
+
+
  
   write_row(7,15+16*(13-tx_gain)); 
 
