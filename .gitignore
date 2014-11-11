@@ -6,3 +6,5 @@
 [#]*[#]
 square_elements_of_array_debug.cpp
 *.dat
+*.txt
+#*
