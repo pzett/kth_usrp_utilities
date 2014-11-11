@@ -39,47 +39,63 @@ no_bits_per_symb=round(log2(length(Const)));
 
 
 % Estimate interfering channel
-Hi=zeros(length(ix_all),length(known_pos));
+Hi=zeros(2,length(ix_all),length(interf_pos));
+hi=zeros(2,Nfft);
 
-for i1=1:length(known_pos)
-  est_pos=start_pos+(re_order(interf_pos(i1))-1)*(Nfft+Np);
-  received_symbol=fft(waveform(est_pos+(0:(Nfft-1))));
-  power=mean(abs(waveform(est_pos+(0:(Nfft-1)))).^2);
-  temp=conj(received_symbol');
-  h_all=temp./(conj(known_symbol(:,i1)')*scaling_of_known+1e-12);
-  h=h_all(ix_all);
-  Hi(:,i1)=h;
+for ant=1:2
+  for i1=1:length(interf_pos)
+    est_pos=start_pos+(interf_pos(i1)-1)*(Nfft+Np)
+    received_symbol=fft(waveform(ant,est_pos+(0:(Nfft-1))));
+    power=mean(abs(waveform(ant,est_pos+(0:(Nfft-1)))).^2);
+    temp=received_symbol;
+    ht=temp./(conj(known_symbol(:,i1)')*scaling_of_known+1e-12);
+    ht=ht(ix_all);
+    Hi(ant,:,i1)=ht;
+  end;
+
+  Hit=squeeze(Hi(ant,:,:));
+
+  ha=mean(abs(Hit(:,:)),2);
+  ph0=exp(-j*angle(mean(Hit(:,:)./repmat(Hit(:,1),1,length(interf_pos)))));
+  Hit=Hit.*repmat(ph0,length(ix_all),1);
+  hp=angle(mean(Hit,2));
+  h=ha.*exp(j*hp);
+  Hi(ant,:,:)=Hit;
+  hi(ant,ix_all)=h;
 end;
 
-ha=mean(abs(H),2);
-ph0=exp(-j*angle(mean(H./repmat(H(:,1),1,length(known_pos)))));
-Hi=Hi.*repmat(ph0,length(ix_all),1);
-hp=angle(mean(H,2));
-hi=ha.*exp(j*hp);
-h_all_i=zeros(size(h_all));
-h_all_i(ix_all)=hi;
+% Estimate desired channel
+Hd=zeros(2,length(ix_all),length(known_pos));
+hd=zeros(2,Nfft);
 
+for ant=1:2
+  for i1=1:length(known_pos)
+    est_pos=start_pos+(re_order(known_pos(i1))-1)*(Nfft+Np)
+    received_symbol=fft(waveform(ant,est_pos+(0:(Nfft-1))));
+    if (ant==1) && (i1==1)
+      rs=received_symbol;
+    end;
+      
+    power=mean(abs(waveform(ant,est_pos+(0:(Nfft-1)))).^2);
+    temp=received_symbol;
+    ht=temp./(conj(known_symbol(:,i1)')*scaling_of_known+1e-12);
+    ht=ht(ix_all);
+    Hd(ant,:,i1)=ht;
+    
+  end;
 
-% Estimate the channel in the frequency domain
-H=zeros(length(ix_all),length(known_pos));
+  Hdt=squeeze(Hd(ant,:,:));
 
-for i1=1:length(known_pos)
-  est_pos=start_pos+(re_order(known_pos(i1))-1)*(Nfft+Np);
-  received_symbol=fft(waveform(est_pos+(0:(Nfft-1))));
-  power=mean(abs(waveform(est_pos+(0:(Nfft-1)))).^2);
-  temp=conj(received_symbol');
-  h_all=temp./(conj(known_symbol(:,i1)')*scaling_of_known+1e-12);
-  h=h_all(ix_all);
-  H(:,i1)=h;
+  ha=mean(abs(Hdt(:,:)),2);
+  ph0=exp(-j*angle(mean(Hdt(:,:)./repmat(Hdt(:,1),1,length(known_pos)))))
+  Hdt=Hdt.*repmat(ph0,length(ix_all),1);
+  hp=angle(mean(Hdt,2));
+  h=ha.*exp(j*hp);
+  %Hd(ant,:,:)=Hdt;
+  hd(ant,ix_all)=h;
+
+  
 end;
-
-ha=mean(abs(H),2);
-ph0=exp(-j*angle(mean(H./repmat(H(:,1),1,length(known_pos)))));
-H=H.*repmat(ph0,length(ix_all),1);
-hp=angle(mean(H,2));
-h=ha.*exp(j*hp);
-h_all=zeros(size(h_all));
-h_all(ix_all)=h;
 
 
 
@@ -93,29 +109,78 @@ rx=zeros(length(ix),Ns-length(known_pos));
 
 
 i10=0;
+i20=0;
 for i1=1:Ns
    if isempty(find(i1==known_pos))
 
      pos=start_pos+(re_order(i1)-1)*(Nfft+Np);
-     received_symbol=fft(waveform(pos+(0:(Nfft-1))));
-     power=power+mean(abs( waveform(pos+(0:(Nfft-1)))).^2);
+     received_symbol1=fft(waveform(1,pos+(0:(Nfft-1))));
+     received_symbol2=fft(waveform(2,pos+(0:(Nfft-1))));
+     power=power+mean(abs( waveform(1,pos+(0:(Nfft-1)))).^2);
+     power=power+mean(abs( waveform(2,pos+(0:(Nfft-1)))).^2);
 
-     demodulator_input=received_symbol./conj(h_all');
-     is_value=demodulator_input(use_pilot_subcarriers(1));
-     cpec=pilot_symbol./is_value;
-     CPECS(i10+1)=cpec;
+     % Desired pilot subcarrier. Antenna 1.
+     temp=received_symbol1(use_pilot_subcarriers(1));
+     temp=temp/hd(1,use_pilot_subcarriers(1));
+     cpec=temp/pilot_symbol;
      cpec=cpec/abs(cpec);
-     demodulator_input=cpec*demodulator_input(ix);   
-     rx(:,i10+1)=demodulator_input;
-     demodulator_input=repmat(demodulator_input,1,length(Const));
-     [dummy,selected]=min(abs(demodulator_input-ConstBig),[],2);
-     temp=dec2bin(selected-1,no_bits_per_symb)=='1';
-     temp=temp';
-     b1=length(ix)*no_bits_per_symb*i10+1;
-     b2=b1+length(ix)*no_bits_per_symb-1;
-     hard_bits(b1:b2)=temp(:);
-     i10=i10+1;
-   
+     hdt(1,:)=hd(1,:)*cpec;
+     cpecd1=cpec;
+
+
+     % Desired pilot subcarrier. Antenna 2.
+     temp=received_symbol2(use_pilot_subcarriers(1));
+     temp=temp/hd(2,use_pilot_subcarriers(1));
+     cpec=temp/pilot_symbol;
+     cpec=cpec/abs(cpec);
+     hdt(2,:)=hd(2,:)*cpec;
+     cpecd2=cpec;
+
+     % Interf pilot subcarrier. Antenna 1.
+     temp=received_symbol1(use_pilot_subcarriers(2));
+     temp=temp/hi(1,use_pilot_subcarriers(2));
+     cpec=temp/pilot_symbol;
+     cpec=cpec/abs(cpec);
+     hit(1,:)=hi(1,:)*cpec;
+     
+     % Interf pilot subcarrier. Antenna 2.
+     temp=received_symbol2(use_pilot_subcarriers(2));
+     temp=temp/hi(2,use_pilot_subcarriers(2));
+     cpec=temp/pilot_symbol;
+     cpec=cpec/abs(cpec);
+     hit(2,:)=hi(2,:)*cpec;
+     i30=0;
+     
+     for i2=ix
+
+       H=zeros(2,2);
+       H(:,1)=hdt(:,i2);         
+       H(:,2)=hit(:,i2);  
+       s=[received_symbol1(i2);received_symbol2(i2)];
+       
+       R=H*H';
+       w=inv(H(:,2)*H(:,2)'+diag(diag(R))*0.1)*H(:,1);
+       
+
+       shat=w'*s;
+       shat=shat/(w'*H(:,1));
+     
+
+
+       % Desired signal channel
+       [dummy,selected]=min(abs(shat(1)-Const));
+       temp=dec2bin(selected-1,no_bits_per_symb)=='1';
+       temp=temp';
+       b1=no_bits_per_symb*i20+1;
+       b2=b1+no_bits_per_symb-1;
+       
+       hard_bits(b1:b2)=temp(:);
+       rx(i30+1,i10+1)=shat;
+       i20=i20+1;
+       i30=i30+1;
+
+    end;
+    i10=i10+1;
   end;  
 
 end;

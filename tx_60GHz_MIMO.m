@@ -53,7 +53,7 @@ for i2=1:no_chan
     ix_start=(i2-1)*2*Nsamples;
     for i1=1:size(X,2)
         temp(i1*2-1+ix_start)=real(X(i2,i1));
-        temp(i1*2-0+ix_start)=imag(X(i2,i1));
+        temp(i1*2-0+ix_start)=-imag(X(i2,i1));
     end;
 end;
 
