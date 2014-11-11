@@ -158,7 +158,7 @@ parameters.constellation=Const;
 parameters.scaling_of_known=scaling_of_known;
 parameters.known_symbol=known_symbol;
 parameters.known_pos=known_pos;
-parameters.known_pos=interf_pos;
+parameters.interf_pos=interf_pos;
 parameters.prepend_sync_seq=prepend_sync_seq;
 
 parameters.b2s=b2s; %% Bit to symbol mapping
