@@ -46,7 +46,7 @@ while (1)
   text(1.0,1.8,['EVM=',num2str(round(e*10)/10),'%'],'FontSize',48);
   title('60GHz transmission');
   figure(2);  
-  plot(abs(X'))
+  plot(abs(X(:,100:end)'))
   title('60GHz transmission','FontSize',48);
   pause(1);
 
