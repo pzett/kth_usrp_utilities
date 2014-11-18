@@ -30,8 +30,8 @@ X(2,:)=X(2,:).*exp(-j*2*pi*f_offset*(1:length(X)));
 
 while (1)
 
-  [hard_bits1,h1,rx1,power,CPECS] = demod_OFDM4(X, parameters1,start_pos+144);
-  [hard_bits2,h2,rx2,power,CPECS] = demod_OFDM4(X, parameters2,start_pos+144);
+  [hard_bits1,h1,rx1,power] = demod_OFDM4(X, parameters1,start_pos+144);
+  [hard_bits2,h2,rx2,power] = demod_OFDM4(X, parameters2,start_pos+144);
 
   figure(1);
   subplot(211);

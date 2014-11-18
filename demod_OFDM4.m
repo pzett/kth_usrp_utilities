@@ -1,4 +1,4 @@
-function [hard_bits,h,rx,power,CPECS] = demod_OFDM4( waveform, parameters, start_pos)
+function [hard_bits,h,rx,power] = demod_OFDM4( waveform, parameters, start_pos)
 %
 % Demodulator corresponding to the mod_OFDM1 modulator.
 %
@@ -44,7 +44,7 @@ hi=zeros(2,Nfft);
 
 for ant=1:2
   for i1=1:length(interf_pos)
-    est_pos=start_pos+(interf_pos(i1)-1)*(Nfft+Np)
+    est_pos=start_pos+(interf_pos(i1)-1)*(Nfft+Np);
     received_symbol=fft(waveform(ant,est_pos+(0:(Nfft-1))));
     power=mean(abs(waveform(ant,est_pos+(0:(Nfft-1)))).^2);
     temp=received_symbol;
@@ -87,7 +87,7 @@ for ant=1:2
   Hdt=squeeze(Hd(ant,:,:));
 
   ha=mean(abs(Hdt(:,:)),2);
-  ph0=exp(-j*angle(mean(Hdt(:,:)./repmat(Hdt(:,1),1,length(known_pos)))))
+  ph0=exp(-j*angle(mean(Hdt(:,:)./repmat(Hdt(:,1),1,length(known_pos)))));
   Hdt=Hdt.*repmat(ph0,length(ix_all),1);
   hp=angle(mean(Hdt,2));
   h=ha.*exp(j*hp);
