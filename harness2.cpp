@@ -27,9 +27,11 @@
 #include <complex>
 #include <uhd/types/clock_config.hpp>
 //#include <gruel/realtime.h>
+#include <atomic>
 extern double dummy_float;
 
 
+std::atomic<int> counter = ATOMIC_VAR_INIT(0);
 
 
 
