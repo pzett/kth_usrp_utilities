@@ -91,10 +91,8 @@ for i1=[1:known_pos-1,known_pos+1:Ns]
    hard_bits(b1:b2)=temp(:);
    i10=i10+1;
    
-  
-
+ 
 end;
-
 power=power/Ns;
 
 end

@@ -174,7 +174,6 @@ bits_in=bits_in(:);
 
 Ns=Nsymbols;
 no_bits_per_symb=round(log2(length(Const)));
-
 number_of_bits_needed=(Ns-length(known_pos))*length(ix)*no_bits_per_symb;
 tx=zeros(length(ix),Ns-length(known_pos));
 bits_in=[bits_in;(rand(number_of_bits_needed-length(bits_in),1)>0.5)];

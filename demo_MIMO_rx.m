@@ -2,7 +2,8 @@
 
 usrp_addr='192.168.20.2';
 use_50Msps=0;
-
+const_size=4; %% Constellation size. Use 4 for QPSK and 16 for 16QAM.
+twister_seed=0;
 
 if (use_50Msps)
   rate=50e6;
@@ -15,12 +16,12 @@ end;
 rf_freq=60e9;
 gain_rx=10;
 
-rand('twister',0);
-bits_in1=rand(1,1740)>0.5;
-bits_in2=rand(1,1740)>0.5;
+rand('twister',twister_seed);
+bits_in1=rand(1,1740*round(log2(const_size)/2))>0.5;
+bits_in2=rand(1,1740*round(log2(const_size)/2))>0.5;
 Ns=60;
-[waveform1, parameters1]=modem_OFDM4(Ns,4,[1,2],[3,4],[1,2],1,bits_in1,[1,2,5:(Ns+2)]);
-[waveform2, parameters2]=modem_OFDM4(Ns,4,[1,2],[1,2],[2,1],2,bits_in2,[3:(Ns+2)]);
+[waveform1, parameters1]=modem_OFDM4(Ns,const_size,[1,2],[3,4],[1,2],1,bits_in1,[1,2,5:(Ns+2)]);
+[waveform2, parameters2]=modem_OFDM4(Ns,const_size,[1,2],[1,2],[2,1],2,bits_in2,[3:(Ns+2)]);
 
 X=rx_60GHz_MIMO(10000,gain_rx,rate,scaling_8bits);
 [ start_pos, f_offset] = synchronize_OFDM1(X(1,1:5000), parameters1,1,1, 1);

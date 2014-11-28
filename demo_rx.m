@@ -1,6 +1,7 @@
 
 usrp_addr='192.168.10.2';
 use_50Msps=0;
+const_size=4;
 
 
 if (use_50Msps)
@@ -14,9 +15,12 @@ end;
 rf_freq=60e9;
 gain_rx=14;
 rand('twister',0);
-bits_in=rand(1,1888)>0.5;
+bits_in=rand(1,1856*round(log2(const_size)/2))>0.5;
 %load bits_in
-[waveform, parameters]=modem_OFDM3(60,4,1,1,1,bits_in);
+%[waveform, parameters]=modem_OFDM3(60,4,1,1,1,bits_in);
+[waveform, parameters]=modem_OFDM4(60,const_size,[1,2],[],1,1,bits_in);
+
+
 
 X=rx_60GHz(rf_freq,10000,0,gain_rx,rate,scaling_8bits);
 
@@ -26,7 +30,8 @@ X=X.*exp(-j*2*pi*f_offset*(1:length(X)));
 
 while (1)
 
-  [hard_bits,h,rx,power,CPECS] = demod_OFDM3(X, parameters,start_pos+144);
+  %[hard_bits,h,rx,power,CPECS] = demod_OFDM3(X, parameters,start_pos+144);
+  [hard_bits,h,rx,power] = demod_OFDM4(X, parameters,start_pos+144);
 
   figure(1);
   plot(rx(:),'x');
