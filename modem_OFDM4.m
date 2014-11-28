@@ -44,6 +44,9 @@ function [waveform, parameters]=modem_OFDM4(Nsymbols,modulation_ix,known_pos,int
 % If prepend_sync_seq=1 then a synchronization sequence is prepended to the
 % waveform. This sequence facilitates synchronization in the time and
 % frequency domain.
+% If prepend_sync_seq=2 then a muted period is added of length corresponding
+% to the synchronization sequence is prepended to the
+% waveform. 
 %
 % The struct parameters should provide all information needed for
 % demodulation.
@@ -193,16 +196,16 @@ for i1=1:Ns
 	 i3=1;
        end;
        burst(use_pilot_subcarriers_sub(2:end));
-    else
+     else
+       burst=zeros(size(burst));	 
        for i2=1:length(ix)
           ixx=(i2-1)*no_bits_per_symb+(1:no_bits_per_symb)+i10*length(ix)*no_bits_per_symb;
           burst(ix(i2))=Const(b2s(bin2dec(num2str(bits_in(ixx))')+1));
        end;
-       burst(use_pilot_subcarriers_sub(1))=scaling_of_known*pilot_symbol;
+       burst(use_pilot_subcarriers(1))=scaling_of_known*pilot_symbol;
        tx(:,i10+1)=burst(ix); 
        i10=i10+1;
     end;
-    
     temp=ifft(burst,Nfft);
     ixx=Np+(1:Nfft)+(Np+Nfft)*(re_order(i1)-1);
     waveform(ixx)=temp;
