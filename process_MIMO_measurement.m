@@ -25,22 +25,11 @@ X(2,:)=X(2,:).*exp(-j*2*pi*f_offset*(1:length(X)));
 [hard_bits2,h2,rx2,power] = demod_OFDM4(X, parameters2,start_pos+144,MMSE);
 
 
-%figure(1);
-%subplot(211);
-%plot(rx1(:),'x');
-%subplot(212);
-%plot(rx2(:),'x');
 
 BER1=1-mean(hard_bits1'==bits_in1)
 BER2=1-mean(hard_bits2'==bits_in2)
 
 
-%text(-1.8,1.8,['BER1=',num2str(round(BER1*1000)/10),'%'],'FontSize',48);
-%axis([-2 2 -2 2]);
-%title('60GHz transmission');
-%figure(2);  
-%plot(abs(X(:,100:end)'))
-%title('60GHz transmission','FontSize',48);
 
 % Signal from TX antenna 1 only
 X1=X(:,0*9000+(start_pos+3+N)+(0:N));

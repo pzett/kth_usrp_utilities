@@ -237,10 +237,14 @@ uint16_t board_60GHz_base::read_row(uint16_t row_num) {
 #define RESET_HMC 4
 
 
-board_60GHz_TX::board_60GHz_TX(uhd::usrp::dboard_iface::sptr db_iface) :
+board_60GHz_TX::board_60GHz_TX(uhd::usrp::dboard_iface::sptr db_iface,
+double clock_freq):
 board_60GHz_base(db_iface,uhd::usrp::dboard_iface::UNIT_TX,
 				   ENABLE_HMC, DATA_IN_HMC, CLK_HMC,
 		 DATA_OUT_HMC, RESET_HMC,2+4) {
+
+
+    m_clock_is_285MHz=(abs(clock_freq-285.714)<abs(clock_freq-308.5714));
 
 
     write_row(0,0); // Power on everything
@@ -278,9 +282,34 @@ board_60GHz_base(db_iface,uhd::usrp::dboard_iface::UNIT_TX,
             63.5           01110             110
             64             01111             111  */
 
+    // Table 10. 308.5714MHz Reference
+    // Frequency(GHz)    DIVRATIO            BAND
 
-    write_row(10,240); // 240+DIVRATIO<4>
-    write_row(11,16*(1+2+4)+2*3+1); // 16*DIVRATIO<3:0>+2*BAND+1
+    /*   
+
+     57.24                 10101             001
+     57.78                 10100             001
+     58.32                 10011             010
+     58.86                 10010             010
+     59.40                 10001             011
+     59.94                 10000             011
+     60.48                 11111             100
+     61.02                 00000             100
+     61.56                 00001             101
+     62.10                 00010             101
+     62.64                 00011             110
+     63.18                 00100             110
+     63.72                 00101             111 */
+
+
+    if (m_clock_is_285MHz) { // 60GHz center frequency
+      write_row(10,240); // 240+DIVRATIO<4>
+      write_row(11,16*(1+2+4)+2*3+1); // 16*DIVRATIO<3:0>+2*BAND+1
+    } else { // 60.48GHz center frequency 
+      write_row(10,240+1); // 240+DIVRATIO<4>
+      write_row(11,16*(1+2+4+8)+2*4+1); // 16*DIVRATIO<3:0>+2*BAND+1
+    };
+
 
 
     write_row(12,95); // Syntesizer parameters (lock window)
@@ -319,11 +348,15 @@ void board_60GHz_TX::set_gain(uint16_t tx_gain) {
 
 
 
-board_60GHz_RX::board_60GHz_RX(uhd::usrp::dboard_iface::sptr db_iface) :
+board_60GHz_RX::board_60GHz_RX(uhd::usrp::dboard_iface::sptr db_iface,
+double clock_freq) :
 board_60GHz_base(db_iface,uhd::usrp::dboard_iface::UNIT_RX,
 				   ENABLE_HMC, DATA_IN_HMC, CLK_HMC,
 		 DATA_OUT_HMC, RESET_HMC,1+2+4) {
 
+
+    
+    m_clock_is_285MHz=(abs(clock_freq-285.714)<abs(clock_freq-308.5714));
 
     write_row(0,128); // Everthing on except ASK mod.
     int bb_gain1=0; // 0-3
@@ -358,8 +391,14 @@ board_60GHz_base(db_iface,uhd::usrp::dboard_iface::UNIT_RX,
     write_row(7,109); // Normal operation
     write_row(8,128); // Normal operation
     write_row(9,0); // Normal operation
-    write_row(10,240); // 240+DIVRATIO<4>
-    write_row(11,16*(1+2+4)+2*3+1); // 16*DIVRATIO<3:0>+2*BAND+1
+
+    if (m_clock_is_285MHz) { // 60GHz center frequency
+      write_row(10,240); // 240+DIVRATIO<4>
+      write_row(11,16*(1+2+4)+2*3+1); // 16*DIVRATIO<3:0>+2*BAND+1
+    } else { // 60.48GHz center frequency 
+      write_row(10,240+1); // 240+DIVRATIO<4>
+      write_row(11,16*(1+2+4+8)+2*4+1); // 16*DIVRATIO<3:0>+2*BAND+1
+    };
 
 
 
@@ -412,10 +451,58 @@ void board_60GHz_RX::set_freq(double freq) {
     };
 
 
-    uint16_t DIVRATIO=round((freq_actual-57e9)/0.5e9)+1;
-    freq_actual=57e9+0.5e9*(DIVRATIO-1);
-    double extra_offset=0.5e9; // Added to make it work. Different from datasheet!
-    uint16_t BAND=floor((freq_actual+extra_offset-57e9)/1e9);
+    uint16_t DIVRATIO;
+    uint16_t BAND;
+
+    if (m_clock_is_285MHz) {
+      DIVRATIO=round((freq_actual-57e9)/0.5e9)+1;
+      freq_actual=57e9+0.5e9*(DIVRATIO-1);
+       double extra_offset=0.5e9; // Added to make it work. Different from datasheet!
+       BAND=floor((freq_actual+extra_offset-57e9)/1e9);
+    } else {
+      if (freq_actual<60.21e9) {
+	DIVRATIO=16+round((59.94e9-freq_actual)/0.54e9);
+        if (DIVRATIO<16)
+          DIVRATIO=16;
+      } else if (freq_actual>60.75e9) {
+
+	DIVRATIO=round((freq_actual-61.02e9)/0.54e9);
+	if (DIVRATIO>5)
+	  DIVRATIO=5;
+      } else
+	DIVRATIO=31;
+
+      if (freq<57.24e9) {
+         freq_actual=57.24e9;
+      };
+
+
+
+       BAND=floor((freq_actual-57.24e9)/1.08e9);
+       if (BAND>7)
+	 BAND=7;
+
+    };
+
+
+    /*   
+
+     57.24                 10101             001
+     57.78                 10100             001
+     58.32                 10011             010
+     58.86                 10010             010
+     59.40                 10001             011
+     59.94                 10000             011
+     60.48                 11111             100
+     61.02                 00000             100
+     61.56                 00001             101
+     62.10                 00010             101
+     62.64                 00011             110
+     63.18                 00100             110
+     63.72                 00101             111 */
+
+
+
 
 
     /*
@@ -454,10 +541,38 @@ void board_60GHz_TX::set_freq(double freq) {
     };
 
 
-    uint16_t DIVRATIO=round((freq_actual-57e9)/0.5e9)+1;
-    freq_actual=57e9+0.5e9*(DIVRATIO-1);
-    double extra_offset=0.5e9; // Added to make it work. Different from datasheet!
-    uint16_t BAND=floor((freq_actual+extra_offset-57e9)/1e9);
+    uint16_t DIVRATIO;
+    uint16_t BAND;
+
+    if (m_clock_is_285MHz) {
+       DIVRATIO=round((freq_actual-57e9)/0.5e9)+1;
+      freq_actual=57e9+0.5e9*(DIVRATIO-1);
+       double extra_offset=0.5e9; // Added to make it work. Different from datasheet!
+       BAND=floor((freq_actual+extra_offset-57e9)/1e9);
+    } else {
+      if (freq_actual<60.21e9) {
+	DIVRATIO=16+round((59.94e9-freq_actual)/0.54e9);
+        if (DIVRATIO<16)
+          DIVRATIO=16;
+      } else if (freq_actual>60.75e9) {
+
+	DIVRATIO=round((freq_actual-61.02e9)/0.54e9);
+	if (DIVRATIO>5)
+	  DIVRATIO=5;
+      } else
+	DIVRATIO=31;
+
+      if (freq<57.24e9) {
+         freq_actual=57.24e9;
+      };
+
+       BAND=floor((freq_actual-57.24e9)/1.08e9);
+       if (BAND>7)
+	 BAND=7;
+
+    };
+
+
 
 
     write_row(10,240+(DIVRATIO>>4)); // 240+DIVRATIO<4>

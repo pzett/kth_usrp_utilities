@@ -42,19 +42,23 @@ class board_60GHz_base {
 
 class board_60GHz_TX : public board_60GHz_base {
    public:   
-   board_60GHz_TX(uhd::usrp::dboard_iface::sptr db_iface);
+   board_60GHz_TX(uhd::usrp::dboard_iface::sptr db_iface, 
+		  double clock_freq=285.714);
    /* Set gain between 0 and 13. Steps are 1.3dB. */
    void set_gain(uint16_t gain);
    void set_freq(double freq);
+   bool m_clock_is_285MHz;
 }; 
 
 
 class board_60GHz_RX : public board_60GHz_base {
    public:   
-   board_60GHz_RX(uhd::usrp::dboard_iface::sptr db_iface);
+    board_60GHz_RX(uhd::usrp::dboard_iface::sptr db_iface,
+   double clock_freq=285.714);
    /* Set gain between 0 and 15. Steps are 1dB. */
    void set_gain(uint16_t gain);
    void set_freq(double freq);
+   bool m_clock_is_285MHz;
 }; 
 
 
