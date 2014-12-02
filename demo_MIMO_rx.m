@@ -29,6 +29,7 @@ X=rx_60GHz_MIMO(10000,gain_rx,rate,scaling_8bits);
 X(1,:)=X(1,:).*exp(-j*2*pi*f_offset*(1:length(X)));
 X(2,:)=X(2,:).*exp(-j*2*pi*f_offset*(1:length(X)));
 
+
 while (1)
 
   [hard_bits1,h1,rx1,power] = demod_OFDM4(X, parameters1,start_pos+144);
@@ -49,6 +50,7 @@ while (1)
   figure(2);  
   plot(abs(X(:,100:end)'))
   title('60GHz transmission','FontSize',48);
+
   pause(1);
 
 

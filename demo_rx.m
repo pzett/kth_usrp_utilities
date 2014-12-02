@@ -45,6 +45,7 @@ while (1)
   plot(abs(X(10:end)))
   title('60GHz transmission','FontSize',48);
   pause(1);
+
 		
   
   X=rx_60GHz(rf_freq,10000,0,gain_rx,rate,scaling_8bits);  

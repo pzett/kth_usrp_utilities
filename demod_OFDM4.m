@@ -1,16 +1,17 @@
-function [hard_bits,hd,rx,power] = demod_OFDM4( waveform, parameters, start_pos)
+function [hard_bits,hd,rx,power] = demod_OFDM4( waveform, parameters, start_pos, MMSE)
 %
 % Demodulator corresponding to the mod_OFDM4 modulator.
 %
 % Inputs:
 % waveform:     The complex base-band input signal (number_of_antennasx number_of_samples)
-% parameters:   output from the modulator function.
+% parameters:   output from the modulator function modem_OFDM4.
 % start_pos:    Position in waveform from which the samples of the first OFDM
 %               symbol is taken.
+% MMSE:         If =1, linear MMSE receiver, =0 Maximum ratio combining.
 %
 % Outputs
 % hard_bits:    Detected bits (zeros and ones)
-% h        :    Channel estimate.
+% h        :    Channel estimate of the desired user.
 % power    :    RMS power of the waveform samples used for detection.
 
 % Give paramterers shorter names
@@ -29,8 +30,12 @@ use_pilot_subcarriers=parameters.use_pilot_subcarriers;
 prepend_sync_seq=parameters.prepend_sync_seq;
 re_order=parameters.re_order;
 pilot_symbol=parameters.pilot_symbol;
-
 no_bits_per_symb=round(log2(length(Const)));
+
+if ~exist('MMSE')
+    MMSE=1;
+end;
+
 
 % Estimate interfering channel
 Hi=zeros(2,length(ix_all),length(interf_pos));
@@ -186,9 +191,14 @@ for i1=1:Ns
        H(:,1)=hdt(:,i2);         
        H(:,2)=hit(:,i2);  
        s=[received_symbol1(i2);received_symbol2(i2)];
-       
-       R=H*H';
-       w=inv(H(:,2)*H(:,2)'+diag(diag(R))*0.1)*H(:,1);
+
+
+       if MMSE
+	 R=H*H';
+	 w=inv(H(:,2)*H(:,2)'+diag(diag(R))*0.1)*H(:,1);
+       else
+	 w=H(:,1);
+       end;
 
        shat=w'*s;
        shat=shat/(w'*H(:,1));

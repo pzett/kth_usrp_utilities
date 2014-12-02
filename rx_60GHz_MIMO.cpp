@@ -87,7 +87,6 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     dev = uhd::usrp::multi_usrp::make(dev_addr);
 
 
-
     #if 1
     uhd::usrp::dboard_iface::sptr db_iface0, db_iface1; 
     db_iface0=dev->get_tx_dboard_iface(0);
@@ -97,12 +96,12 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     my_60GHz_RX0.set_gain(gain); // 60GHz
     board_60GHz_RX  my_60GHz_RX1(db_iface1);  //60GHz 
     my_60GHz_RX1.set_gain(gain); // 60GHz
-
+    #endif
 
     uhd::tune_request_t trq(freq,LOoffset); 
     tr=dev->set_rx_freq(trq,0);
     tr=dev->set_rx_freq(trq,1);
-    #endif
+
 
 
     std::cout << "rx_rate=" << rx_rate << "\n";
