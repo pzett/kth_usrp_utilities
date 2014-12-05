@@ -1,7 +1,7 @@
 
-function X=rx_60GHz(RF_freq,Nsamples,ref_clk,gain,rx_rate,scaling_8bits,dev_addr)
+function X=rx_60GHz(RF_freq,Nsamples,ref_clk,gain,rx_rate,scaling_8bits,dev_addr,clock_freq)
 %
-%  function X=rx(RF_freq, Nsamples,ref_clk,pps_trigger,gain,rx_rate,scaling_8bits,dev_addr)
+%  function X=rx(RF_freq, Nsamples,ref_clk,pps_trigger,gain,rx_rate,scaling_8bits,dev_addr,clock_freq)
 %
 %       RF_freq: Center frequency of 60GHz RX board. 
 %             X: Received complex samples.
@@ -19,6 +19,7 @@ function X=rx_60GHz(RF_freq,Nsamples,ref_clk,gain,rx_rate,scaling_8bits,dev_addr
 %                 The parameter scaling_bits should then be set to the maximum 
 %                 amplitude expected.
 %	dev_addr: IP address of USRP.
+%     clock_freq: Clock frequency of CLK board (in MHz). Default 285.714MHz.
 
 
 
@@ -39,7 +40,9 @@ end;
 if ~exist('dev_addr')
   dev_addr='192.168.10.2';
 end;
-
+if ~exist('clock_freq')
+  clock_freq=285.714;
+end;
 
 cmd_str=['sudo ./rx_60GHz --nsamp=',num2str(Nsamples),' --filename=',filename];
 cmd_str=[cmd_str,' --freq=',num2str(BasicDB_freq),' --rxrate=',num2str(rx_rate)];
@@ -47,6 +50,8 @@ cmd_str=[cmd_str,' --rf_freq=',num2str(RF_freq)];
 cmd_str=[cmd_str,' --gain=',num2str(gain)];
 cmd_str=[cmd_str,' --LOoffset=',num2str(LOoffset)];
 cmd_str=[cmd_str,' --dev_addr=',dev_addr];
+cmd_str=[cmd_str,' --clock_freq=',num2str(clock_freq)];
+
 
 
 if (abs(scaling_8bits)>0)

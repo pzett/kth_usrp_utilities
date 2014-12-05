@@ -46,7 +46,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     //variables to be set by po
     //double seconds_in_future=0.01;
     size_t total_num_samps;
-    double rx_rate, freq, LOoffset, rf_freq;
+    double rx_rate, freq, LOoffset, rf_freq, clock_freq;
     bool use_external_10MHz;
     double scaling_8bits;
     std::string filename;
@@ -76,6 +76,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     "input scaling (invers) when 8bits is used, set to zero to get 16bits")
        ("dev_addr",po::value<std::string>(&dev_addr_str)->default_value("192.168.10.2"), 
     "IP address of USRP")
+("clock_freq", po::value<double>(&clock_freq)->default_value(285.714), "Clock frequency of CLK board")
 
     ;
     po::variables_map vm;
@@ -96,7 +97,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     uhd::usrp::dboard_iface::sptr db_iface;
     db_iface=dev->get_tx_dboard_iface(0);
        
-    board_60GHz_RX my_60GHz_RX(db_iface);    // 60GHz
+    board_60GHz_RX my_60GHz_RX(db_iface,clock_freq);    // 60GHz
     my_60GHz_RX.set_gain(gain);    // 60GHz
     if (rf_freq!=60e9) {
       my_60GHz_RX.set_freq(rf_freq);    // 60GHz

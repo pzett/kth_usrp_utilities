@@ -1,6 +1,5 @@
 
 
-usrp_addr='192.168.20.2';
 use_50Msps=0;
 const_size=4; %% Constellation size. Use 4 for QPSK and 16 for 16QAM.
 twister_seed=0;

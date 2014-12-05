@@ -477,8 +477,8 @@ void board_60GHz_RX::set_freq(double freq) {
       };
 
 
-
-       BAND=floor((freq_actual-57.24e9)/1.08e9);
+       double extra_offset=0.54e9; // Added to make it work. Different from datasheet!
+       BAND=floor((freq_actual+extra_offset-57.24e9)/1.08e9);
        if (BAND>7)
 	 BAND=7;
 
@@ -566,7 +566,9 @@ void board_60GHz_TX::set_freq(double freq) {
          freq_actual=57.24e9;
       };
 
-       BAND=floor((freq_actual-57.24e9)/1.08e9);
+       double extra_offset=0.54e9; // Added to make it work. 
+       BAND=floor((freq_actual+extra_offset-57.24e9)/1.08e9);
+
        if (BAND>7)
 	 BAND=7;
 
