@@ -1,6 +1,5 @@
 //
-// Copyright 2010 Ettus Research LLC
-// Copyright 2010-2014 Modified by Per Zetterberg, KTH.
+// Copyright Per Zetterberg, KTH Royal Institute of Technology
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -186,7 +185,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
 
     //print the help message
     if (vm.count("help")){
-        std::cout << boost::format("UHD RX Timed Samples %s") % desc << std::endl;
+        std::cout << boost::format("rx_60GHz %s") % desc << std::endl;
         return ~0;
     }
 

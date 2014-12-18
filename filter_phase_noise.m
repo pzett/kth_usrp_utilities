@@ -1,4 +1,5 @@
 
+
 function y = filter_phase_noise(x,xn)
 %
 % y = filter_phase_noise(x,xn)
@@ -10,7 +11,7 @@ function y = filter_phase_noise(x,xn)
 %  y: Downconverted and filtered output signal. 
 %     The filter bandwidth is set to 
 %     0.97 times the frequency of the fundamental.
-%     The filter thereby removing overtones.
+%     Thereby removing overtones.
 
 x=x-mean(x);
 
@@ -21,8 +22,6 @@ if exist('xn')
 end;
    
 
-
-
 px=mean(abs(real(x)).^2);
 py=mean(abs(imag(x)).^2);
 
@@ -31,7 +30,7 @@ x=real(x)+j*imag(x)*sqrt(px/py);
 
 FFT_x=abs(fft(x));
 [dummy,max_ix]=max(abs(FFT_x));
-f0  =(max_ix-1)/length(x)*1e9
+f0  =(max_ix-1)/length(x)*1e9;
 
 if (f0>0.5e9)
     f0=f0-1e9;

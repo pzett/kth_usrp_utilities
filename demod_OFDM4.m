@@ -1,3 +1,4 @@
+
 function [hard_bits,hd,rx,power] = demod_OFDM4( waveform, parameters, start_pos, MMSE)
 %
 % Demodulator corresponding to the mod_OFDM4 modulator.

@@ -1,9 +1,16 @@
+
 function [x,y] = get_data2 (filename )
 %
 % function [x,y] = get_data2 (filename )
 %
 % Read data from two channels save on text-files
 % using get_data_from_tektronix.
+%
+% filename: Filename including full path but excluding the
+%           "_ch=1.txt" and "_ch=2.txt" filename endings.
+%
+% x,y     : Signal received from channel one and two of
+%           the oscilloscope corresponding to I and Q.
     
 for ch=2:-1:1
     

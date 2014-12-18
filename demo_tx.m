@@ -1,11 +1,19 @@
 
-usrp_addr='192.168.20.2';
+
+%===================================================
+% Set these parameters to obtain desired behaviour 
+%===================================================
+usrp_addr='192.168.20.2'; 
 use_50Msps=0;
-
-
+gain_tx=13;
 rf_freq=60e9;
+const_size=4; %% 4=QPSK, 16=16QAM, 64=64QAM
+%===================================================
+
+
 rand('twister',0);
-bits_in=rand(1,1888)>0.5;
+%bits_in=rand(1,1888)>0.5;
+bits_in=rand(1,1856*round(log2(const_size)/2))>0.5;
 [waveform, parameters]=modem_OFDM3(60,4,1,1,1,bits_in);
 
 
@@ -18,5 +26,5 @@ else
 end;
 
 
-tx_60GHz(rf_freq, 3000, waveform*3000/sqrt(parameters.power),0, 13, ...
+tx_60GHz(rf_freq, 3000, waveform*3000/sqrt(parameters.power),0, gain_tx, ...
 rate, low_res, usrp_addr);

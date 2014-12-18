@@ -8,7 +8,9 @@ square_elements_of_array_debug.cpp
 *.dat
 *.txt
 #*
+.#*.*
 *.pdf
 *.mat
 *.log
 *.eps
+!README.txt

@@ -1,4 +1,5 @@
 
+
 % process_MIMO_measurements.m
 
 % The measurements
@@ -15,9 +16,12 @@
 % 901-910 Tilted orientation of receiver antennas. twister_seed=9
 % 1001-1009 Tilted orientation of receiver antennas. twister_seed=10
 
-% Point to location of the measurements
+
+fprintf(1,'Download the measurements. \n');
+fprintf(1,'Then make sure meas_dir points to the location of the measurements. \n');
 meas_dir='/home/eq2430/meas141128/';
 
+if 0
 i10=1;
 for i1=[1:12,101:111,201:209,301:311,401:411,501:510,601:608,701:710,801:810,901:909,1001:1009]
  
@@ -56,3 +60,27 @@ for i1=[1:12,101:111,201:209,301:311,401:411,501:510,601:608,701:710,801:810,901
 end;
 
 save MIMO_res BER1s BER2s BER1s_MMSE BER2s_MMSE BER1si BER2si BER1si_MMSE BER2si_MMSE
+end;
+
+load MIMO_res
+Fig=gcf;
+
+set(Fig,'Color',[1 1 1]);
+BER=[BER1s,BER2s];
+subplot(311)
+hist(BER,20)
+grid
+axis([0 0.6 0 170]);
+BER_MMSE=[BER1s_MMSE,BER2s_MMSE];
+subplot(312)
+hist(BER_MMSE,20)
+grid
+axis([0 0.6 0 170]);
+subplot(313)
+BERi=[BER1si,BER2si];
+hist(BERi,20);
+grid
+axis([0 0.6 0 170]);
+xlabel('BER');
+
+'print -deps BER_hist.eps'

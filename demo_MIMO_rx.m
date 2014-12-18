@@ -1,8 +1,14 @@
 
-
+%===================================================
+% Set these parameters to obtain desired behaviour 
+%===================================================
+% Addresses of USRPs assumed to be 192.168.10.2 and 192.168.20.2.
 use_50Msps=0;
 const_size=4; %% Constellation size. Use 4 for QPSK and 16 for 16QAM.
 twister_seed=0;
+rf_freq=60e9;
+gain_rx=10;
+%===================================================
 
 if (use_50Msps)
   rate=50e6;
@@ -12,8 +18,6 @@ else
   scaling_8bits=0;
 end;
  
-rf_freq=60e9;
-gain_rx=10;
 
 rand('twister',twister_seed);
 bits_in1=rand(1,1740*round(log2(const_size)/2))>0.5;

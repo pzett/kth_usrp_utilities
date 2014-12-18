@@ -1,9 +1,14 @@
-
+%===================================================
+% Set these parameters to obtain desired behaviour 
+%===================================================
+% Addresses of USRPs assumed to be 192.168.10.2 and 192.168.20.2.
 use_50Msps=0;
 rf_freq=60e9;
 repeat_single_antenna=0; % Used when logging data for post-processing at the receiver.
 const_size=4; %% Use 4 or 16 for QPSK and 16QAM
 twister_seed=0;
+gain_tx=10;
+%===================================================
 
 rand('twister',twister_seed);
 bits_in1=rand(1,1740*round(log2(const_size)/2))>0.5;
@@ -41,4 +46,4 @@ else
 end;
 
 
-tx_60GHz_MIMO(ceil(size(X,2)/1000)*1000, X, 10, rate, low_res)
+tx_60GHz_MIMO(ceil(size(X,2)/1000)*1000, X, gain_tx, rate, low_res)

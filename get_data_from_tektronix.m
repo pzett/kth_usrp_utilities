@@ -1,3 +1,4 @@
+
 function  get_data_from_tektronix( filename )
 %
 % function  get_data_from_tektronix( filename )
@@ -9,7 +10,7 @@ function  get_data_from_tektronix( filename )
 % user should be able to changes these hard coded
 % properties.
 % The data is saved in two text files with 
-% with filenames dericed from the filename input string.
+% with filenames derived from the filename input string.
 % The filename input string should be given without extension.
 % The data is read from the textfiles using the companion
 % function get_data2.

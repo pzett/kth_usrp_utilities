@@ -15,7 +15,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-// This program has the same functionality as tx.cpp but for the // 60GHz tranceiver.
 
 #include <uhd/utils/thread_priority.hpp>
 #include <uhd/utils/safe_main.hpp>
@@ -86,7 +85,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
 
     //print the help message
     if (vm.count("help")){
-        std::cout << boost::format("tx %s") % desc << std::endl;
+        std::cout << boost::format("tx_60GHz.cpp %s") % desc << std::endl;
         return ~0;
     }
 

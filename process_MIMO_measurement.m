@@ -1,5 +1,4 @@
 
-
 % Data is located in "X"
 
 % Obtain modulation parameters

@@ -3,7 +3,8 @@
 % Open Source SDR Frontend and Measurements for 60GHz Wireless Experimentation
 %
 
-% Point to location of measurement data.
+fprintf(1,'Download the measurements. \n');
+fprintf(1,'Then make sure meas_dir points to the location of the measurements. \n');
 meas_dir='/home/perz/meas141017/'; 
 
 
@@ -12,7 +13,7 @@ Xn=Xn(1:99900)';
 Yn=Yn(1:99900)';
 
 if 1
-for i1=1:-1
+for i1=1:200
    i1
    [X,Y]=get_data2([meas_dir,'meas',num2str(i1)]);
    X=X(1:99900)';
@@ -87,6 +88,7 @@ x=get(gca,'Xlabel');
 set(x,'FontSize',16);
 y=get(gca,'Ylabel');
 set(y,'FontSize',16);
+grid
 
 'print plot1.eps -depsc'
 axis([1e5 1e8 -130 -70]);
