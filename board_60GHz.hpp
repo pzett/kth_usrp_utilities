@@ -1,5 +1,5 @@
 //
-// Copyright 2014 Modified by Per Zetterberg, KTH.
+// Copyright Per Zetterberg, KTH Royal Institute of Technology
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by

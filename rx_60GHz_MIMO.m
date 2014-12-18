@@ -1,4 +1,3 @@
-
 function X=rx_60GHz_MIMO(Nsamples,gain,rx_rate,scaling_8bits)
 %
 %  function X=rx_60GHz_MIMO(Nsamples,ref_clk,pps_trigger,gain,rx_rate,scaling_8bits,dev_addr)
