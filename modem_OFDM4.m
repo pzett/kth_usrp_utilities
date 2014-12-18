@@ -1,3 +1,21 @@
+%
+% Copyright 2014 Modified by Per Zetterberg, KTH.
+%
+% This program is free software: you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation, either version 3 of the License, or
+% (at your option) any later version.
+%
+% This program is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU General Public License for more details.
+%
+% You should have received a copy of the GNU General Public License
+% along with this program.  If not, see <http://www.gnu.org/licenses/>.
+%
+
+
 function [waveform, parameters]=modem_OFDM4(Nsymbols,modulation_ix,known_pos,interf_pos,use_pilot_subcarriers,prepend_sync_seq,bits_in,re_order)
 %
 %
@@ -21,34 +39,36 @@ function [waveform, parameters]=modem_OFDM4(Nsymbols,modulation_ix,known_pos,int
 % folding at Fs, this correspond to carrier frequencies 0 to
 % 5MHz and -5MHz to -0.625MHz at 25MHz sample-rate.
 % With 50MHz sample-rate the corresponding number are 0 to 10MHz and
-% -
+% -10MHz to -1.25MHz
 %
-% One of the OFDM symbols is entirely known at the receiver. This is symbol
-% as index known_pos if the symbold are numbered 1...Ns. This symbols uses
-% only QPSK as subcarrier modulation.
+% Two of the OFDM symbols are entirely known at the receiver. This indecies
+% of these two symbols are given by the vector known_pos, where the symbold are 
+% numbered 1...Nsymbols. This symbols uses only QPSK as subcarrier modulation.
 %
 % In order to facilitate phase-derotation, for SISO and MIMO systems with independent
 % phase-noise between transmitter branches, the use_pilot_subcarriers parameter has been 
 % introduced in a rather involved way.
 % 
-% For SISO systems, use_pilot_subcarriers points at the subcarrier [1,..9,33..40], which contains 
-% a single pilot symbol 1+j, which is used for phase-derotation in the receiver.
-% For MIMO systems, use_pilot_subcarriers is a vector. The first element use_pilot_subcarriers(1) is used
-% to point out a pilot symbol 1+j, which is used for phase-derotation as in the SISO case.
+% For SISO systems, use_pilot_subcarriers points at the subcarrier [1,..9,33..40], 
+% which contains a single pilot symbol 1+j, which is used for phase-derotation in the receiver.
+% For MIMO systems, use_pilot_subcarriers is a vector. The first element of
+% use_pilot_subcarriers(1) is used to point out a pilot symbol 1+j, which is used 
+% for phase-derotation as in the SISO case.
 % The remaining elements use_pilot_subcarriers(2:end) are used to point out subcarriers
-% wich are not modulated but filled with zeros symbols 0+j0 (i.e. no power transmitted).
+% which are not modulated but filled with zeros symbols 0+j0 (i.e. no power transmitted).
+% This is done to leave space for the pilot subcarriers of another tranmitting antenna.,
 % If use_pilot_subcarriers contains numbers which are outside [1,..9,33..40], 
 % these elements are simply ignored.     
 % 
 %
 % If prepend_sync_seq=1 then a synchronization sequence is prepended to the
 % waveform. This sequence facilitates synchronization in the time and
-% frequency domain.
+% frequency domain using synchronize_OFDM1.m.
 % If prepend_sync_seq=2 then a muted period is added of length corresponding
 % to the synchronization sequence is prepended to the
 % waveform. 
 %
-% The struct parameters should provide all information needed for
+% The struct parameters (which is an output) should provide all information needed for
 % demodulation.
 %
 % The vector bits_in are binary input which is transmitted. If bits_in is
@@ -60,7 +80,15 @@ function [waveform, parameters]=modem_OFDM4(Nsymbols,modulation_ix,known_pos,int
 % The parameter re_order, if defined, can be used to re-order the position of the 
 % the OFDM symbols. If re_order(x)=y then the x:th symbol is transmitted on
 % the nominal location of the y:th symbol. Note that y can be larger than Nsymbols. 
-% This is useful for implementing e.g. antenna hopping. 
+% This is useful for creating muted symbols in the transmitter signal.
+%
+% The input parameter interf_pos contains the symbol numnber where an interfering
+% signal is transmitting its pilot symbols. The parameter re_order above is then
+% typically used to create a space in the desired signal at those positions.
+% The receiver (demod_OFDM4) use these symbols to estimate the channel of
+% the interfering signal to be subsequently used in a MMSE receiver.
+
+
 
 if ~exist('re_order')
    re_order=1:Nsymbols;

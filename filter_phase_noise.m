@@ -1,4 +1,22 @@
 
+%
+% Copyright 2014 Modified by Per Zetterberg, KTH.
+%
+% This program is free software: you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation, either version 3 of the License, or
+% (at your option) any later version.
+%
+% This program is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU General Public License for more details.
+%
+% You should have received a copy of the GNU General Public License
+% along with this program.  If not, see <http://www.gnu.org/licenses/>.
+%
+
+
 function y = filter_phase_noise(x,xn)
 %
 % y = filter_phase_noise(x,xn)
@@ -10,7 +28,7 @@ function y = filter_phase_noise(x,xn)
 %  y: Downconverted and filtered output signal. 
 %     The filter bandwidth is set to 
 %     0.97 times the frequency of the fundamental.
-%     The filter thereby removing overtones.
+%     Thereby removing overtones.
 
 x=x-mean(x);
 
@@ -21,8 +39,6 @@ if exist('xn')
 end;
    
 
-
-
 px=mean(abs(real(x)).^2);
 py=mean(abs(imag(x)).^2);
 
@@ -31,7 +47,7 @@ x=real(x)+j*imag(x)*sqrt(px/py);
 
 FFT_x=abs(fft(x));
 [dummy,max_ix]=max(abs(FFT_x));
-f0  =(max_ix-1)/length(x)*1e9
+f0  =(max_ix-1)/length(x)*1e9;
 
 if (f0>0.5e9)
     f0=f0-1e9;

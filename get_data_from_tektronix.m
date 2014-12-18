@@ -1,3 +1,20 @@
+%
+% Copyright 2014 Modified by Per Zetterberg, KTH.
+%
+% This program is free software: you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation, either version 3 of the License, or
+% (at your option) any later version.
+%
+% This program is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU General Public License for more details.
+%
+% You should have received a copy of the GNU General Public License
+% along with this program.  If not, see <http://www.gnu.org/licenses/>.
+%
+
 function  get_data_from_tektronix( filename )
 %
 % function  get_data_from_tektronix( filename )
@@ -9,7 +26,7 @@ function  get_data_from_tektronix( filename )
 % user should be able to changes these hard coded
 % properties.
 % The data is saved in two text files with 
-% with filenames dericed from the filename input string.
+% with filenames derived from the filename input string.
 % The filename input string should be given without extension.
 % The data is read from the textfiles using the companion
 % function get_data2.

@@ -1,8 +1,14 @@
 
+%===================================================
+% Set these parameters to obtain desired behaviour 
+%===================================================
 usrp_addr='192.168.10.2';
 use_50Msps=0;
 const_size=4;
-
+gain_rx=14;
+rf_freq=60e9;
+const_size=4; %% 4=QPSK, 16=16QAM, 64=64QAM
+%===================================================
 
 if (use_50Msps)
   rate=50e6;
@@ -12,14 +18,10 @@ else
   scaling_8bits=0;
 end;
  
-rf_freq=60e9;
-gain_rx=14;
+
 rand('twister',0);
 bits_in=rand(1,1856*round(log2(const_size)/2))>0.5;
-%load bits_in
-%[waveform, parameters]=modem_OFDM3(60,4,1,1,1,bits_in);
 [waveform, parameters]=modem_OFDM4(60,const_size,[1,2],[],1,1,bits_in);
-
 
 
 X=rx_60GHz(rf_freq,10000,0,gain_rx,rate,scaling_8bits);
@@ -30,7 +32,6 @@ X=X.*exp(-j*2*pi*f_offset*(1:length(X)));
 
 while (1)
 
-  %[hard_bits,h,rx,power,CPECS] = demod_OFDM3(X, parameters,start_pos+144);
   [hard_bits,h,rx,power] = demod_OFDM4(X, parameters,start_pos+144);
 
   figure(1);
@@ -60,21 +61,3 @@ while (1)
 
 end;
 
-
-if 0
-
-  while 1
-  X=rx_60GHz(10000,0,14,25e6,0); 
-  hold off
-  figure(3)
-  plot(10*log10(abs(conv(abs(X).^2,ones(1,100)))),'r')
-  hold on
-  plot([0 10000],[35 35]);
-  plot([0 10000],[80 80]);
-  axis([0 10000 10 100]);
-  pause(0.1);
-  end;
-
-
-
-end;

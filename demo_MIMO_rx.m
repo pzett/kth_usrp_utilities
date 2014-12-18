@@ -1,9 +1,30 @@
+%
+% Copyright 2014 Modified by Per Zetterberg, KTH.
+%
+% This program is free software: you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation, either version 3 of the License, or
+% (at your option) any later version.
+%
+% This program is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU General Public License for more details.
+%
+% You should have received a copy of the GNU General Public License
+% along with this program.  If not, see <http://www.gnu.org/licenses/>.
+%
 
-
-usrp_addr='192.168.20.2';
+%===================================================
+% Set these parameters to obtain desired behaviour 
+%===================================================
+% Addresses of USRPs assumed to be 192.168.10.2 and 192.168.20.2.
 use_50Msps=0;
 const_size=4; %% Constellation size. Use 4 for QPSK and 16 for 16QAM.
 twister_seed=0;
+rf_freq=60e9;
+gain_rx=10;
+%===================================================
 
 if (use_50Msps)
   rate=50e6;
@@ -13,8 +34,6 @@ else
   scaling_8bits=0;
 end;
  
-rf_freq=60e9;
-gain_rx=10;
 
 rand('twister',twister_seed);
 bits_in1=rand(1,1740*round(log2(const_size)/2))>0.5;
