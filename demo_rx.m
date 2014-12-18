@@ -30,6 +30,7 @@ X=rx_60GHz(rf_freq,10000,0,gain_rx,rate,scaling_8bits);
 
 X=X.*exp(-j*2*pi*f_offset*(1:length(X)));
 
+
 while (1)
 
   [hard_bits,h,rx,power] = demod_OFDM4(X, parameters,start_pos+144);
