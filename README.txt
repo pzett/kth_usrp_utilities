@@ -12,7 +12,8 @@ Prerequisites:
 
 UHD driver (see ettus.com). Tested against release_003_006_002.
 
-List of files in the directory:
+List of files used in the paper (files not listed are unrelated to
+the paper):
 
 ----------------------------------------------------------------------------
 | File             | Purpose                                               |
@@ -76,14 +77,14 @@ List of files in the directory:
 | phase_noise_plot.m   Matlab script to generate the phase-noise plot in   |
 |                  | Fig. 6 of the paper.                                  |
 |                  |                                                       |
-| subcarrier_spacing.m  Matlab script to generate thcurves in Fig. 8       |
+| subcarrier_spacing.m  Matlab script to generate the curves in Fig. 8     |
 |                  | of the paper which shows BER versus FFT size.         |
 |                  |                                                       |
 | get_data2.m      | Function to read data from phase-noise measuremente   |
 |                  | files.                                                |
 |                  |                                                       |
 | filter_phase_noise.m Equalize the power of I and Q and filter-out over-  |
-|                  | tones in the measurements.                            |
+|                  | tones in the phase_noise measurements.                |
 |                  |                                                       |
 | log_data.m       | When performing the MIMO measurements of the paper    |
 |                  | demo_MIMO_tx.m was run at the transmitter with        |
@@ -91,6 +92,9 @@ List of files in the directory:
 |                  | At the receive log_data was run.                      |
 |                  |                                                       |
 | process_MIMO_measurements.m                                              |
-| process_MIMO_measurement.m   These files are used to produce Fig. 8 of   |
-|                              of the paper.                               |
+| process_MIMO_measurement.m                                               |
+| These files are used to produce Fig. 9 of the paper. In the header of    | 
+| process_MIMO_measurements.m the transmitted data sequence is described in|
+| more detail.                                                             |
+----------------------------------------------------------------------------
 

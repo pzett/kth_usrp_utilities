@@ -12,6 +12,8 @@ meas_dir='/home/perz/meas141017/';
 Xn=Xn(1:99900)';
 Yn=Yn(1:99900)';
 
+
+
 if 1
 for i1=1:200
    i1
@@ -20,6 +22,7 @@ for i1=1:200
    Y=Y(1:99900)';
    y = filter_phase_noise(X+j*Y,Xn+j*Yn);
    [P,F]=plotting_phase_noise(y);
+   keyboard
    if i1==1
      P0=P/200;
    else
