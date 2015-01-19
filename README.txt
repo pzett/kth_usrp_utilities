@@ -22,7 +22,7 @@ the paper):
 | 		   | which are used to control the RX and TX boards,       |
 |                  | respectively (see the paper), using a USRP N2xx.      |
 |                  |                                                       |
-| board.hpp        | Header file corresponding to the classes above.       |
+| board_60GHz.hpp  | Header file corresponding to the classes above.       |
 | 		   |                                                       |
 | rx_60GHz.cpp     | Program which uses the board_60GHz_RX class           |
 |                  | to control a single RX board connected to a USRP N2xx.|
@@ -51,7 +51,7 @@ the paper):
 |                  |                                                       |
 | tx_60GHz_MIMO.m  | Matlab/octave interface to tx_60GHz_MIMO.             |
 |                  |                                                       |
-| moded_OFDM4.m    | Matlab/octave function creating                       |
+| modem_OFDM4.m    | Matlab/octave function creating                       |
 |                  | OFDM modulation tailored to the application. Uses     |
 |                  | 625kHz or 1250kHz subcarrier spacing dependong on the |
 |                  | sample rate (25Msps or 50Msps). 	      	           |
@@ -74,9 +74,12 @@ the paper):
 | demo_MIMO_rx.m   | RX side of MIMO 2x2 spatial multippexing demonstrator |
 |                  | based on the above. Start TX side first.              |
 |                  |                                                       |
-| phase_noise_plot.m   Matlab script to generate the phase-noise plot in   |
+| phase_noise_plot.m  Matlab script to generate the phase-noise plot in    |
 |                  | Fig. 6 of the paper.                                  |
 |                  |                                                       |
+|                  |                                                       |
+| plotting_phase_noise.m | Spectrum estimation for phase-noise measurements.|
+|                                                                          |
 | subcarrier_spacing.m  Matlab script to generate the curves in Fig. 8     |
 |                  | of the paper which shows BER versus FFT size.         |
 |                  |                                                       |

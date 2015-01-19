@@ -1,7 +1,7 @@
 
-function X=rxrx_radar(Nsamples,Y,freq,rate)
+function X=rxrx_radar(Nsamples,Y,RF_freq,rate)
 %
-% X=rxrx_radar(Nsamples,Y,freq,rate)
+% X=rxrx_radar(Nsamples,Y,RF_freq,rate)
 %
 
 filename_rx='data_from_usrp.dat';
@@ -13,7 +13,7 @@ if (max(abs([real(Y),imag(Y)])>2^15-1))
 end;
 
 temp=zeros(1,2*Nsamples);
-for i1=1:size(X,2)
+for i1=1:size(Y,2)
    temp(i1*2-1)=real(Y(1,i1));
    temp(i1*2-0)=imag(Y(1,i1));
 end;
@@ -25,11 +25,13 @@ fclose(fid);
 
 cmd_str=['sudo ./rxtx_radar '];
 cmd_str=[cmd_str,' --nsamp ',num2str(Nsamples)];
-cmd_str=[cmd_str,' --freq ',num2str(RF_freq),' --rate ',num2str(rate),' ';]
+cmd_str=[cmd_str,' --freq ',num2str(RF_freq),' --rate ',num2str(rate),' '];
+
+
 
 system(cmd_str);
 
-fid=fopen(filename,'r');
+fid=fopen(filename_rx,'r');
 temp=fread(fid,inf,'int16');
 X=[temp(1:2:end)'+j*temp(2:2:end)'];
 fclose(fid);
