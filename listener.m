@@ -1,6 +1,6 @@
 twister_receive=14;
 const_size=4;
-load bits_in2
+load bits_in1
 %rand('twister',twister_receive);
 %bits_in=rand(1,1856*round(log2(const_size)/2))>0.5;
 [waveform, parameters]=modem_OFDM4(60,const_size,[1,2],[],1,1,bits_in);
@@ -12,7 +12,7 @@ load bits_in2
 
 t = tcpip('127.0.0.1', 30000, 'NetworkRole', 'server');
 fopen(t);
-buffer_size=10000;
+buffer_size=9000;
 X=zeros(1,buffer_size);
 
 

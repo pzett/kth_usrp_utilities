@@ -32,6 +32,7 @@ cmd_str=[cmd_str,' --nrep=',num2str(num_repeats)];
 cmd_str=[cmd_str,' --n=',num2str(send_to_listener)];
 
 system(cmd_str);
+cmd_str
 
 fid=fopen(filename_rx,'r');
 temp=fread(fid,inf,'int16');

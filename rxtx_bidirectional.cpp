@@ -215,7 +215,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
 
 
 
-    int process_buffer_size=10000; // Buffer size in processing
+    int process_buffer_size=9000; // Buffer size in processing
     int tx_ahead_buffers=3; // Number of buffers transmitted before starting
                             // to receive.
 
@@ -385,9 +385,10 @@ int signal_processing::process_buffers(
 
   
   if (m_send_to_listener>0) {
+
+
     if (((m_num_repeats_done % m_send_to_listener)==0) && (m_buffer_ix==0)) {
 
-          std::cout << "hej \n";
       int i2=0;
       for (int i1=0;i1<m_buffer_size;i1++) {
 	buffer_to_listener[i2++]=htons(real(process_buffer_rx[i1]));
@@ -397,6 +398,7 @@ int signal_processing::process_buffers(
       };
 
       write(m_socket,buffer_to_listener,m_buffer_size*4);
+
 
     };
  };
@@ -421,7 +423,6 @@ int signal_processing::process_buffers(
       m_num_samps_transmitted++;
     };
   };
-
 
 
   
