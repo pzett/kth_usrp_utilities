@@ -215,7 +215,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
 
 
 
-    int process_buffer_size=2000; // Buffer size in processing
+    int process_buffer_size=10000; // Buffer size in processing
     int tx_ahead_buffers=3; // Number of buffers transmitted before starting
                             // to receive.
 
