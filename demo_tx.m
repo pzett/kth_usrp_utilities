@@ -3,7 +3,7 @@
 %===================================================
 % Set these parameters to obtain desired behaviour 
 %===================================================
-usrp_addr='192.168.10.2'; 
+usrp_addr='192.168.20.2'; 
 use_50Msps=0;
 gain_tx=13;
 rf_freq=60e9;
