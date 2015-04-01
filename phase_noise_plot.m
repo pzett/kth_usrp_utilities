@@ -12,6 +12,8 @@ meas_dir='/home/perz/meas141017/';
 Xn=Xn(1:99900)';
 Yn=Yn(1:99900)';
 
+
+
 if 1
 for i1=1:200
    i1
@@ -19,14 +21,14 @@ for i1=1:200
    X=X(1:99900)';
    Y=Y(1:99900)';
    y = filter_phase_noise(X+j*Y,Xn+j*Yn);
-   [P,F]=plotting_phase_noise(y);
+   [P,F]=plotting_phase_noise(y);   
    if i1==1
      P0=P/200;
    else
      P0=P0+P/200;
    end;
 end;
-%save phase_noise_plot_data_filtered
+save phase_noise_plot_data_filtered
 
 for i1=1:200
    i1

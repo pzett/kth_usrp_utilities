@@ -4,10 +4,11 @@
 % Open Source SDR Frontend and Measurements for 60GHz Wireless Experimentation
 %
 
-% Point to location of measurement data.
+fprintf(1,'Download the phase-noise  measurements. \n');
+fprintf(1,'Then make sure meas_dir points to the location of the measurements. \n';)
 meas_dir='/home/perz/meas141017/'; 
 
-if 0
+if 1
 
 Nffts=[100,200,400,800,1600,3200]; %% Number of subcarriers of 1GHz
 M=16;
@@ -20,17 +21,21 @@ BER=zeros(length(Nffts),length(Ms));
 for i1=1:200 % 200 measurement files.
     i1
 
+    % Read measurements from measurement file i1.
     [X,Y]=get_data2([meas_dir,'meas',num2str(i1)]);
     X=X(1:99900)';
     Y=Y(1:99900)';
+    % Filter it to remove over-tones.
     y = filter_phase_noise(X+j*Y);
   
+
     for s_i=1:Nsegments        
         for n_fft_i=length(Nffts):-1:1
 
            Nfft=Nffts(n_fft_i);
            ix=(s_i-1)*Ss+(1:Nfft);
-                  
+ 
+           % Pick out part of the phase noise measurement.                 
            yn=y(ix);
            yn=yn/sum(yn); % Remove CPE
            yn=yn/mean(abs(yn)); % Nornalize power      

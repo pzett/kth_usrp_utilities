@@ -72,6 +72,4 @@ if (low_res)
     cmd_str=[cmd_str,' --8bits true '];
 end;
 
-
-
-%system(cmd_str);
+system(cmd_str);

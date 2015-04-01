@@ -55,9 +55,9 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     desc.add_options()
         ("help", "help message")
         ("args", po::value<std::string>(&args)->default_value(""), "simple uhd device address args")
-        ("secs", po::value<double>(&seconds_in_future)->default_value(3), "number of seconds in the future to transmit")
+        ("secs", po::value<double>(&seconds_in_future)->default_value(0.5), "number of seconds in the future to transmit")
         ("nsamps", po::value<size_t>(&total_num_samps)->default_value(1000), "total number of samples to transmit")
-        ("rate", po::value<double>(&rate)->default_value(100e6/16), "rate of outgoing and ingoing samples")
+        ("rate", po::value<double>(&rate)->default_value(100e6/8), "rate of outgoing and ingoing samples")
         ("freq", po::value<double>(&freq)->default_value(0), "rf center frequency in Hz")
         ("filename_tx",po::value<std::string>(&filename_tx)->default_value("data_to_usrp.dat"), "tx filename")
         ("filename_rx",po::value<std::string>(&filename_rx)->default_value("data_from_usrp.dat"), "rx filename")        
@@ -79,6 +79,11 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     /* Create buffer storage of transmit signal*/
     std::complex<int16_t> *buffer;
     buffer = new std::complex<int16_t>[total_num_samps];
+
+    /* Create buffer storage for trailing zeros */
+    std::complex<int16_t> *buffer_zeros;
+    buffer_zeros = new std::complex<int16_t>[100]();
+    
 
     /* Create buffer storage of receive signal*/
     std::complex<int16_t> *buffer_rx;
@@ -142,6 +147,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     dev->set_tx_rate(rate);
     dev->set_rx_rate(rate);
     std::cout << boost::format("Actual TX Rate: %f Msps...") % (dev->get_tx_rate()/1e6) << std::endl;
+    std::cout << boost::format("Actual RX Rate: %f Msps...") % (dev->get_rx_rate()/1e6) << std::endl;
     std::cout << boost::format("Setting device timestamp to 0...") << std::endl;
 
 
@@ -149,7 +155,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
 
     
     dev->set_time_now(uhd::time_spec_t(0.0));
-    md.start_of_burst = false;
+    md.start_of_burst = true;
     md.end_of_burst = false;
     md.has_time_spec = true;
     md.time_spec = uhd::time_spec_t(seconds_in_future);
@@ -157,8 +163,12 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     uint32_t num_samps_sent=0;
     while (num_samps_sent<total_num_samps) {
       int num_tx_samps = tx_stream->send(&buffer[num_samps_sent], total_num_samps-num_samps_sent, md);
+      md.start_of_burst = true;
       num_samps_sent+=num_tx_samps;
     };
+    md.end_of_burst = true;
+    tx_stream->send(buffer_zeros, 100, md);
+
 
     uhd::rx_metadata_t md_rx;
 
@@ -175,6 +185,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
        num_rx_samps=rx_stream->recv(&buffer_rx[num_samps_recd],num_samps_left, md_rx, seconds_in_future+1);
        num_samps_recd=num_samps_recd+num_rx_samps;
     };
+
 
     //finished
     std::cout << std::endl << "Done!" << std::endl << std::endl;
