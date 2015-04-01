@@ -5,7 +5,7 @@ LDLIBS = -luhd -lboost_program_options
 #==============================================================
  
 all:	tx rx tx_60GHz harness rx_60GHz tx_60GHz_MIMO \
-rx_60GHz_MIMO rxtx_radar
+rx_60GHz_MIMO rxtx_radar rxtx_bidirectional
 
 #==============================================================
 clean:
@@ -33,10 +33,10 @@ rx_60GHz_MIMO: rx_60GHz_MIMO.o board_60GHz.o board_60GHz.hpp
 #==============================================================
 rxtx_radar: rxtx_radar.o
 	$(CXX) -o $@ $^ $(LDLIBS) 
-
 #==============================================================
-
-
+rxtx_bidirectional: rxtx_bidirectional.o
+	$(CXX) -o $@ $^ $(LDLIBS) 
+#==============================================================
 
 
 square_elements_of_array_debug.cpp:	square_elements_of_array.cpp
