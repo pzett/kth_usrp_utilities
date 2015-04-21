@@ -3,12 +3,11 @@
 %===================================================
 % Set these parameters to obtain desired behaviour 
 %===================================================
-usrp_addr='192.168.10.2';
 use_50Msps=0;
 const_size=4;
-gain_rx=14;
-rf_freq=60e9;
-const_size=4; %% 4=QPSK, 16=16QAM, 64=64QAM
+gain_rx=30;
+rf_freq=2490e6;
+const_size=16; %% 4=QPSK, 16=16QAM, 64=64QAM
 %===================================================
 
 if (use_50Msps)
@@ -23,7 +22,6 @@ end;
 rand('twister',0);
 bits_in=rand(1,1740*round(log2(const_size)/2))>0.5;
 [waveform, parameters]=modem_OFDM4(60,const_size,[1,2],[],[2,1],1,bits_in);
-
 
 
 X=rx(10000,rf_freq,0,gain_rx,rate,0,scaling_8bits);
@@ -45,13 +43,12 @@ while (1)
   title('60GHz transmission');
   figure(2);  
   plot(abs(X(10:end)))
-  title('60GHz transmission','FontSize',48);
+  title('RX Signal','FontSize',48);
   pause(1);
 
 		
   X=rx(10000,rf_freq,0,gain_rx,rate,0,scaling_8bits);
   X=X.*exp(-j*2*pi*f_offset*(1:length(X))); 
-
 
   % Use the frequency offset that was computed the first time
   estimate_freq_offset = 0; % Do not estimate frequency offset 
