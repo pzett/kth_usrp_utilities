@@ -387,7 +387,7 @@ board_60GHz_base(db_iface,uhd::usrp::dboard_iface::UNIT_RX,
     write_row(2,4*bb_att_fineQ+32*bb_att_fineI); 
                                                // Normal operation
 
-    int bb_low_pass_corner=3; // 0=>1.4GHz, 1=>500MHz, 2=> 300MHz, 3=>200MHz.
+    int bb_low_pass_corner=0; // 0=>1.4GHz, 1=>500MHz, 2=> 300MHz, 3=>200MHz.
     int bb_high_pass_corner=2; // 0=>30kHz, 1=>300kHz, 2=>1.5MHz.
 
     write_row(3,3+16*bb_high_pass_corner+64*bb_low_pass_corner);
