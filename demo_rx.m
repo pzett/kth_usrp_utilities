@@ -1,4 +1,4 @@
-  
+% 34-48  
 %===================================================
 % Set these parameters to obtain desired behaviour 
 %===================================================
@@ -24,7 +24,7 @@ bits_in=rand(1,1856*round(log2(const_size)/2))>0.5;
 [waveform, parameters]=modem_OFDM4(60,const_size,[1,2],[],1,1,bits_in);
 
 
-X=rx_60GHz(rf_freq,10000,0,gain_rx,rate,scaling_8bits);
+X=rx_60GHz(rf_freq,10000,0,gain_rx,rate,scaling_8bits,usrp_addr);
 
 [ start_pos, f_offset] = synchronize_OFDM1(X(1:5000), parameters,1,1, 1);
 
@@ -38,11 +38,11 @@ while (1)
   figure(1);
   plot(rx(:),'x');
   BER=1-mean(hard_bits'==bits_in);
-  text(-1.8,1.8,['BER=',num2str(round(BER*1000)/10),'%'],'FontSize',48);
+  text(-1.8,1.8,['BER=',num2str(round(BER*1000)/10),'%'],'FontSize',24);
   axis([-2 2 -2 2]);
   e=evm(rx(:),parameters.tx(:));
-  text(1.0,1.8,['EVM=',num2str(round(e*10)/10),'%'],'FontSize',48);
-  title('60GHz transmission');
+  text(0.5,1.8,['EVM=',num2str(round(e*10)/10),'%'],'FontSize',24);
+  title('60GHz transmission','FontSize',24);
   figure(2);  
   plot(abs(X(10:end)))
   title('60GHz transmission','FontSize',48);
@@ -50,7 +50,7 @@ while (1)
 
 		
   
-  X=rx_60GHz(rf_freq,10000,0,gain_rx,rate,scaling_8bits);  
+  X=rx_60GHz(rf_freq,10000+6000,0,gain_rx,rate,scaling_8bits,usrp_addr);  
   X=X.*exp(-j*2*pi*f_offset*(1:length(X))); 
 
 
