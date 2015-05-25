@@ -59,6 +59,7 @@ class board_60GHz_TX : public board_60GHz_base {
    void set_gain(uint16_t gain);
    void set_freq(double freq);
    bool m_clock_is_285MHz;
+   void power_down(void);
 }; 
 
 

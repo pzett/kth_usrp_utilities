@@ -26,7 +26,21 @@
 #include <cstdio>
 #include "board_60GHz.hpp"
 
+#include <signal.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <unistd.h>
+
+
 namespace po = boost::program_options;
+
+board_60GHz_TX *p_my_60GHz_TX;
+
+void my_handler(int s){
+     p_my_60GHz_TX->power_down();
+     exit(1); 
+
+}
 
 
 int UHD_SAFE_MAIN(int argc, char *argv[]){
@@ -36,6 +50,15 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     if (uhd::set_thread_priority_safe(1,true)) {
        std::cout << "set priority went well " << std::endl;
     };
+
+
+    struct sigaction sigIntHandler;
+
+    sigIntHandler.sa_handler = my_handler;
+    sigemptyset(&sigIntHandler.sa_mask);
+    sigIntHandler.sa_flags = 0;
+
+    sigaction(SIGINT, &sigIntHandler, NULL);
 
 
     //variables to be set by po
@@ -126,6 +149,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     };
 
 
+
     uhd::usrp::dboard_iface::sptr db_iface;
     db_iface=dev->get_tx_dboard_iface(0);
 
@@ -134,7 +158,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     if (rf_freq!=60e9) {
       my_60GHz_TX.set_freq(rf_freq);    // 60GHz
     };
-
+    p_my_60GHz_TX=& my_60GHz_TX;
 
     uhd::tune_result_t tr;
     uhd::tune_request_t trq(freq,LOoffset); //std::min(tx_rate,10e6));

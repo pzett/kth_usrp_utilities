@@ -249,6 +249,7 @@ uint16_t board_60GHz_base::read_row(uint16_t row_num) {
 #define RESET_HMC 4
 
 
+
 board_60GHz_TX::board_60GHz_TX(uhd::usrp::dboard_iface::sptr db_iface,
 double clock_freq):
 board_60GHz_base(db_iface,uhd::usrp::dboard_iface::UNIT_TX,
@@ -357,7 +358,10 @@ void board_60GHz_TX::set_gain(uint16_t tx_gain) {
 
 };
 
+void board_60GHz_TX::power_down(void) {
+  write_row(0,255);
 
+}
 
 
 board_60GHz_RX::board_60GHz_RX(uhd::usrp::dboard_iface::sptr db_iface,

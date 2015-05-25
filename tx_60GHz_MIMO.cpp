@@ -27,7 +27,24 @@
 #include <cstdio>
 #include "board_60GHz.hpp"
 
+#include <signal.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <unistd.h>
+
+
 namespace po = boost::program_options;
+
+
+board_60GHz_TX *p_my_60GHz_TX0;
+board_60GHz_TX *p_my_60GHz_TX1;
+
+void my_handler(int s){
+     p_my_60GHz_TX0->power_down();
+     p_my_60GHz_TX1->power_down();
+     exit(1); 
+
+}
 
 
 int UHD_SAFE_MAIN(int argc, char *argv[]){
@@ -37,6 +54,14 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     if (uhd::set_thread_priority_safe(1,true)) {
        std::cout << "set priority went well " << std::endl;
     };
+
+    struct sigaction sigIntHandler;
+
+    sigIntHandler.sa_handler = my_handler;
+    sigemptyset(&sigIntHandler.sa_mask);
+    sigIntHandler.sa_flags = 0;
+
+    sigaction(SIGINT, &sigIntHandler, NULL);
 
 
     //variables to be set by po
@@ -121,6 +146,10 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
     my_60GHz_TX0.set_gain(gain); // 60GHz
     board_60GHz_TX  my_60GHz_TX1(db_iface1);  //60GHz 
     my_60GHz_TX1.set_gain(gain); // 60GHz
+    p_my_60GHz_TX0=&my_60GHz_TX0;
+    p_my_60GHz_TX1=&my_60GHz_TX1;
+
+
 
     //make mboard 1 a slave over the MIMO Cable
     dev->set_clock_source("mimo", 1);
