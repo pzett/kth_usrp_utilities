@@ -155,7 +155,7 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
 
     board_60GHz_TX  my_60GHz_TX(db_iface);  //60GHz 
     my_60GHz_TX.set_gain(gain); 
-    if (rf_freq!=60e9) {
+    if (rf_freq!=64e9) {
       my_60GHz_TX.set_freq(rf_freq);    // 60GHz
     };
     p_my_60GHz_TX=& my_60GHz_TX;
