@@ -267,6 +267,7 @@ board_60GHz_base(db_iface,uhd::usrp::dboard_iface::UNIT_TX,
     write_row(4,63); // Normal operation
     write_row(5,244); // Normal operation
     write_row(6,143); // 
+    std::cout << "r=" << read_row(6) << "\n";
 
     int l_tx_gain=13; // 0:13. Increasing gain.
     write_row(7,15+16*(13-l_tx_gain)); 
@@ -314,10 +315,13 @@ board_60GHz_base(db_iface,uhd::usrp::dboard_iface::UNIT_TX,
      63.18                 00100             110
      63.72                 00101             111 */
 
+    // 60GHz. DIVRATIO=7, BAND=3
+    // 64GHz. DIVRATIO=15, BAND=7
 
-    if (m_clock_is_285MHz) { // 60GHz center frequency
+
+    if (m_clock_is_285MHz) { // 64GHz center frequency
       write_row(10,240); // 240+DIVRATIO<4>
-      write_row(11,16*(1+2+4)+2*3+1); // 16*DIVRATIO<3:0>+2*BAND+1
+      write_row(11,16*(1+2+4+8)+2*7+1); // 16*DIVRATIO<3:0>+2*BAND+1
     } else { // 60.48GHz center frequency 
       write_row(10,240+1); // 240+DIVRATIO<4>
       write_row(11,16*(1+2+4+8)+2*4+1); // 16*DIVRATIO<3:0>+2*BAND+1
@@ -325,9 +329,12 @@ board_60GHz_base(db_iface,uhd::usrp::dboard_iface::UNIT_TX,
 
 
 
-    write_row(12,95); // Syntesizer parameters (lock window)
+    //write_row(12,95); // Syntesizer parameters (lock window)
+    write_row(12,31+32*0+64*1+128*0); // Syntesizer parameters (lock window)
     write_row(13,128); // normal operation (synths on)
     write_row(14,118); // normal operation
+    
+
 
     #if 0
     for (int i1=0;i1<15;i1++) {
@@ -338,11 +345,24 @@ board_60GHz_base(db_iface,uhd::usrp::dboard_iface::UNIT_TX,
 
     std::cout << "Waiting for PLL lock \n";
     int lock=read_row(15)>> 6;
+    
+    #if 1
     while (lock!=1) {
+      std::cout << "lock=" << lock << "\n";
       std::cout << ".";
       usleep(1e6);
       lock=read_row(15)>> 6;
     };
+    #endif
+
+    //01 indicates that the VCO control voltage is within the 
+    //lock window and the synthesizer is locked.
+    //11 indicates the VCO control voltage above lock window
+    //00 below lock window
+    //10 is a disallowed state indicating an error
+
+    
+
     std::cout << "PLL has locked! \n";
    
 }
@@ -408,9 +428,13 @@ board_60GHz_base(db_iface,uhd::usrp::dboard_iface::UNIT_RX,
     write_row(8,128); // Normal operation
     write_row(9,0); // Normal operation
 
-    if (m_clock_is_285MHz) { // 60GHz center frequency
+
+    // 60GHz. DIVRATIO=7, BAND=3
+    // 64GHz. DIVRATIO=15, BAND=7
+
+    if (m_clock_is_285MHz) { // 64GHz center frequency
       write_row(10,240); // 240+DIVRATIO<4>
-      write_row(11,16*(1+2+4)+2*3+1); // 16*DIVRATIO<3:0>+2*BAND+1
+      write_row(11,16*(1+2+4+8)+2*7+1); // 16*DIVRATIO<3:0>+2*BAND+1
     } else { // 60.48GHz center frequency 
       write_row(10,240+1); // 240+DIVRATIO<4>
       write_row(11,16*(1+2+4+8)+2*4+1); // 16*DIVRATIO<3:0>+2*BAND+1
@@ -589,8 +613,6 @@ void board_60GHz_TX::set_freq(double freq) {
 	 BAND=7;
 
     };
-
-
 
 
     write_row(10,240+(DIVRATIO>>4)); // 240+DIVRATIO<4>
