@@ -6,7 +6,7 @@ usrp_addr='192.168.10.2';
 use_50Msps=0;
 const_size=4;
 gain_rx=14;
-rf_freq=60e9;
+rf_freq=64e9;
 const_size=4; %% 4=QPSK, 16=16QAM, 64=64QAM
 %===================================================
 
