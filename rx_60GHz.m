@@ -1,7 +1,7 @@
 
-function X=rx_60GHz(RF_freq,Nsamples,ref_clk,gain,rx_rate,scaling_8bits,dev_addr,clock_freq)
+function X=rx_60GHz(RF_freq,Nsamples,ref_clk,gain,rx_rate,scaling_8bits,dev_addr,clock_freq,BasicDB_freq)
 %
-%  function X=rx(RF_freq, Nsamples,ref_clk,pps_trigger,gain,rx_rate,scaling_8bits,dev_addr,clock_freq)
+  %  function X=rx(RF_freq, Nsamples,ref_clk,pps_trigger,gain,rx_rate,scaling_8bits,dev_addr,clock_freq,BasicDB_freq)
 %
 %       RF_freq: Center frequency of 60GHz RX board. 
 %             X: Received complex samples.
@@ -20,7 +20,8 @@ function X=rx_60GHz(RF_freq,Nsamples,ref_clk,gain,rx_rate,scaling_8bits,dev_addr
 %                 amplitude expected.
 %	dev_addr: IP address of USRP.
 %     clock_freq: Clock frequency of CLK board (in MHz). Default 285.714MHz.
-
+%   BasicDB_freq: Set the carrier frequency used between the USRP and the
+%                 daughterboard.
 
 
 
@@ -43,6 +44,13 @@ end;
 if ~exist('clock_freq')
   clock_freq=285.714;
 end;
+if isempty(clock_freq)
+  clock_freq=285.714;
+end;
+if ~exist('BasicDB_freq')
+  BasicDB_freq=70e6;
+end;
+
 
 cmd_str=['sudo ./rx_60GHz --nsamp=',num2str(Nsamples),' --filename=',filename];
 cmd_str=[cmd_str,' --freq=',num2str(BasicDB_freq),' --rxrate=',num2str(rx_rate)];
