@@ -1,4 +1,4 @@
-function tx_60GHz(RF_freq, Nsamples, X, ref_clk , gain, tx_rate, low_res, dev_addr)
+function tx_60GHz(RF_freq, Nsamples, X, ref_clk , gain, tx_rate, low_res, dev_addr, BasicDB_freq)
 
 
 
@@ -22,10 +22,14 @@ function tx_60GHz(RF_freq, Nsamples, X, ref_clk , gain, tx_rate, low_res, dev_ad
 %           The code automatically sets the "peak" value for
 %           the UHD driver.
 % dev_addr: IP address of USRP.
+% BasicDB_freq: Set the carrier frequency used between the USRP and the
+%                 daughterboard.
 
 filename='data_to_usrp.dat';
 LOoffset=0;
-BasicDB_freq=70e6;
+
+
+
 
 if ~exist('tx_rate')
     tx_rate=25e6;
@@ -35,6 +39,9 @@ if ~exist('low_res')
 end;
 if ~exist('dev_addr')
     dev_addr='192.168.10.2';
+end;
+if ~exist('BasicDB_freq')
+   BasicDB_freq=70e6;
 end;
 
 
