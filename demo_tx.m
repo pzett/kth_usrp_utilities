@@ -8,6 +8,7 @@ use_50Msps=0;
 gain_tx=13;
 rf_freq=64e9;
 const_size=4; %% 4=QPSK, 16=16QAM, 64=64QAM
+BasicDB_freq=15e6;
 %===================================================
 % 285.71385
 
@@ -26,4 +27,4 @@ end;
 
 
 tx_60GHz(rf_freq, 3000, waveform*3000/sqrt(parameters.power),0, gain_tx, ...
-rate, low_res, usrp_addr);
+	 rate, low_res, usrp_addr,BasicDB_freq);
