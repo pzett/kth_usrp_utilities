@@ -2,12 +2,13 @@
 %===================================================
 % Set these parameters to obtain desired behaviour 
 %===================================================
-usrp_addr='192.168.10.2';
+usrp_addr='192.168.20.2';
 use_50Msps=0;
 const_size=4;
 gain_rx=14;
 rf_freq=64e9;
 const_size=4; %% 4=QPSK, 16=16QAM, 64=64QAM
+BasicDB_freq=15e6;
 %===================================================
 
 if (use_50Msps)
@@ -24,7 +25,7 @@ bits_in=rand(1,1856*round(log2(const_size)/2))>0.5;
 [waveform, parameters]=modem_OFDM4(60,const_size,[1,2],[],1,1,bits_in);
 
 
-X=rx_60GHz(rf_freq,10000,0,gain_rx,rate,scaling_8bits,usrp_addr);
+X=rx_60GHz(rf_freq,10000,0,gain_rx,rate,scaling_8bits,usrp_addr,[],BasicDB_freq);
 
 [ start_pos, f_offset] = synchronize_OFDM1(X(1:5000), parameters,1,1, 1);
 
@@ -50,7 +51,7 @@ while (1)
 
 		
   
-  X=rx_60GHz(rf_freq,10000+6000,0,gain_rx,rate,scaling_8bits,usrp_addr);  
+  X=rx_60GHz(rf_freq,10000+6000,0,gain_rx,rate,scaling_8bits,usrp_addr,[],BasicDB_freq);
   X=X.*exp(-j*2*pi*f_offset*(1:length(X))); 
 
 

@@ -1,7 +1,7 @@
 
 function X=rx_60GHz(RF_freq,Nsamples,ref_clk,gain,rx_rate,scaling_8bits,dev_addr,clock_freq,BasicDB_freq)
 %
-  %  function X=rx(RF_freq, Nsamples,ref_clk,pps_trigger,gain,rx_rate,scaling_8bits,dev_addr,clock_freq,BasicDB_freq)
+%  function X=rx(RF_freq, Nsamples,ref_clk,pps_trigger,gain,rx_rate,scaling_8bits,dev_addr,clock_freq,BasicDB_freq)
 %
 %       RF_freq: Center frequency of 60GHz RX board. 
 %             X: Received complex samples.
@@ -26,7 +26,6 @@ function X=rx_60GHz(RF_freq,Nsamples,ref_clk,gain,rx_rate,scaling_8bits,dev_addr
 
 
 filename='d.dat';
-BasicDB_freq=70e6;
 LOoffset=0; 
 
 if ~exist('rx_rate')
@@ -42,6 +41,9 @@ if ~exist('dev_addr')
   dev_addr='192.168.10.2';
 end;
 if ~exist('clock_freq')
+  clock_freq=285.714;
+end;
+if isempty('clock_freq')
   clock_freq=285.714;
 end;
 if isempty(clock_freq)
